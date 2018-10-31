@@ -45,7 +45,7 @@ Git是一个版本控制工具
  `add`：创建文件之后要Git add  
  `commit`：每一写完一段功能或者当天收工要git commit  
  `push`：每天结束push  
- `pull`：每次 push 之前要 pull
+ `pull`：每次 push 之前要 pull，每次开始搬砖时候最好pull
 
 6. Git命令
 - 新建代码库  
