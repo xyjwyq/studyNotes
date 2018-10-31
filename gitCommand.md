@@ -101,6 +101,7 @@ Git是一个版本控制工具
 `git push [remote] [branch]`：上传本地指定分支到远程仓库  
 `git push [remote] --force`：强行推送当前分支到远程仓库，即使有冲突  
 `git push [remote] --all`：推送所有分支到远程仓库  
+`git push origin local_branch:remote_branch `：推送分支（origin为远程仓库名，local_branch必须为你本地存在的分支，remote_branch为远程分支，如果remote_branch不存在则会自动创建分支；类似，git push origin :remote_branch，local_branch 留空的话则是删除远程remote_branch分支。）
 
 #### Git与时间简史
 ```
