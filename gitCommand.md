@@ -14,7 +14,7 @@
 2. ***ls:*** 查看当前路径下的文件
 3. ***ll(ls -al):*** 查看当前文件夹中的文件详情（绿色-快捷方式，白色-文件，蓝色-文件夹）
 4. ***cd:*** 切换目录
-5. ***mkdir 目录名:*** 在当前路径下创建文件夹
+5. ***mkdir+目录名:*** 在当前路径下创建文件夹
 
 #### Git相关问题
 1. Git 与GitHub有什么区别？
@@ -89,9 +89,19 @@ Git是一个版本控制工具
 `git push origin --delete [branch-name]` ` git branch -dr [remote/branch]`：删除远程分支  
 - 查看信息  
 `git status`：显示有变更的文件  
-` git log`：显示当前分支的版本历史  
+`git log`：显示当前分支的版本历史  
 `git log --stat`：显示commit历史，以及每次commit发生变更的文件  
 `git log -S [keyword]`：搜索提交历史，根据关键词  
+- 标签  
+`git tag`：列出所有tag  
+`git tag [tag]`：新建一个tag 在当前commit  
+`git tag [tag] [commit]`：新建一个tag 在指定commit  
+`git tag -d [tag]`：删除本地tag  
+`git push origin :refs/tags/[tagName]`：删除远程tag  
+`git show [tag]`：查看tag信息  
+`git push [remote] [tag`：提交指定tag  
+`git push [remote] --tags`： 提交所有tag  
+`git checkout -b [branch] [tag]`：新建一个分支，指向某个tag  
 - 远程同步  
 `git fetch [remote]`：下载远程仓库的所有变动  
 `git remote -v`：显示所有远程仓库  
@@ -107,7 +117,7 @@ Git是一个版本控制工具
 ```
 1）代码在某台机器上,某个路径下,有某个文件,其中某一行（状态）（三维空间）  
 2）不同的时间点状态是不一样的（四维时空）
-3）不同f分支（branch）(五维时空)--本地仓库（小宇宙）
+3）不同分支（branch）(五维时空)--本地仓库（小宇宙）
 4）不同的人有不同的本地仓库,构成了平行宇宙（六维时空）
 ```
 #### Git-SVN的区别
