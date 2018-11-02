@@ -141,8 +141,74 @@ E + F an F element immediately preceded by an E element
 E ~ F an F element preceded by an E element
 后面的兄弟节点
 ```
-#### Css3边框
+#### Css3边框和背景  
+1. **Css边框**  
+```
+border-image ———— 边框应用背景
 
+    语法：/* border-image: image-source image-height image-width image-repeat */
+        --> 将图片分为九宫格形式，而元素也会根据内容区边界延伸将元素分为九宫格，之后将图片与元素对应；
+	参数：
+        *image-source*
+            - 若 border-image-source（此值可用border-image-source 或border-image简写设置) 的值为 none 或者图片不能显示，则将应用 border-style。
+        *image-height image-width* 
+            - 根据这两个值分别作出距离图片左边款，右边框为image-width的两条竖线，做出距离图片上边梁，下边框为image-height的两条横线，将图片分为九宫格
+            - 为截取指定图片四周的宽度作为border的背景填充部分(截取图可按border-width 大小伸缩), number为一个数字时是复合写法
+
+        *image-repeat*
+            - stretch 拉伸，有多长拉多长。有多远“滚”多远
+            - repeat (和4角上 同等大小图片进行平铺  当边框中间区域长度不是4角图片大小的整数倍时 会被切割)
+			- round 铺满(4角上的图片 进行拉伸平铺,不会被切割)
+      
+    eg: 
+        - border-image: url("/images/border.png") 30 30 repeat;
+        - border-image: url("/images/border.png") 30 30 stretch;
+```
+```
+border-radius ————— 边框圆角  
+
+    border-radius:20px; -->代表四个点的半径
+
+    border-radius: 20px 30px;-->第一个值代表左上和右下的半径，第二个值代表右上和左下的半径
+
+    border-radius: 20px 30px 40px;-->第一个值代表左上半径，第二个值代表右上和左下的半径，第三个值代表右下的半径
+    
+    border-radius:20px 30px 40px 50px;-->第一个值代表左上半径，第二个值代表右上，第三个值代表右下的半径，第四个值代表左下
+    
+    border-radius:20px 30px 40px 50px / 20px 30px 40px 50px;-->/之前代表四个点横向的长度，/之后代表四个点纵向的长度
+
+    border-top-left-radius:20px;
+    border-top-right-radius:20px;
+    border-bottom-right-radius:20px;
+    border-bottom-left-radius:20px;
+
+    border-top-left-radius:20px 20px;
+    border-top-right-radius:20px 20px;
+    border-bottom-right-radius:20px 20px;
+    border-bottom-left-radius:20px 20px;
+```
+```
+box-shadow ———— 盒子阴影
+
+    box-shadow: X轴偏移量 Y轴偏移量 [阴影模糊半径] [阴影扩展半径] [阴影颜色] [投影方式];
+        -->阴影扩展半径扩展原则：
+            - 若offset-x = 0,offset-y = 0-->则四边阴影均扩展
+            - 若offset-x = 0,offset-y != 0-->则x轴方向两侧阴影均扩展，y轴方向扩展与 offset-y方向一致
+            - 若offset-x != 0,offset-y = 0-->则y轴方向两侧阴影均扩展，x轴方向扩展与 offset-x方向一致
+            - 若offset-x != 0,offset-y != 0-->则x轴方向扩展与 offset-x方向一致，y轴方向扩展与 offset-y方向一致
+       
+        eg:
+            .box_shadow{
+                box-shadow:4px 2px 6px 7px #333333 inset; 
+            }
+
+    同一盒子，可以同时加多个阴影，阴影之间用“,”隔开
+
+        .box_shadow{
+            box-shadow:4px 2px 6px #f00, -4px -2px 6px #000, 0px 0px 12px 5px #33CC00 inset;
+        }
+
+```
 
 
 
