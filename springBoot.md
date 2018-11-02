@@ -25,6 +25,14 @@
     - 消灭歧义
         - `@Primary`：告诉spring IoC容器，当发现有多个同样类型的Bean时，请优先使用我进行输入  
         - `@Qualifier`：当你创建多个具有相同类型的 bean 时，并且想要用一个属性只为它们其中的一个进行装配，在这种情况下，你可以使用 @Qualifier 注释和 @Autowired 注释通过指定哪一个真正的 bean 将会被装配来消除混乱。  
+    - `@Value`：
+    - `@ConfigurationProperties`：
+    - `@PropertySource`：
+    - `@Conditional`：
+    - `@scope(ConfigurableBeanFactory.SCOPE_SINGLETON/SCOPE_PROTOTYPE)`：
+    - `@Profile`：
+    - `@ImportResource`：
+      
 6. 注解详解  
 - ***@Autowired:***  
     - 作用：根据属性的类型找到对应的类型（by Type）找到对应的Bean进行注入  
@@ -34,8 +42,10 @@
     - Bean定义  
     ```
     Bean定义大致分为以下三个步骤：  
-    - Spring通过我们的配置，如@Component定义的扫描路径去找到带有@Component的类，这是一个资源定位的过程
+    - Spring通过我们的配置，如@ComponentScan定义的扫描路径去找到带有@Component的类，这是一个资源定位的过程
+
     - 一旦找到了资源，开始进行解析，并将定义信息保存起来（此时还没有初始化Bean,也没有Bean的实例，有的仅仅是Bean的定义）
+
     - 然后把Bean定义发布发到 Spring IoC容器中。此时，IoC容器只有 Bean定义，没有Bean实例的生成
     ```
     - Bean的初始化  
@@ -61,7 +71,33 @@
         - `@Value("${database.propertyName}")`
         - `@ConfigurationProperties`
     - 使用新的属性文件
-    `PropertySource(value={"classPath:fileName"}, ignoreSourceNotFound=true)`
+    `@PropertySource(value={"classPath:fileName"}, ignoreSourceNotFound=true)`
+9. Bean作用域  
+
+    | 作用域类型 | 使用范围  | 作用域描述 |
+    | :------------: |:---------------:| :-----:|
+    | singleton | 所有Spring用用 | 默认值，IoC容器只存在单例 |
+    | prototype | 所有Spring用用 | 每当从IoC容器中取出一个 Bean，则创建一个新的Bean |
+    | session | Spring Web用用 | HTTP会话 |
+    | application | Spring Web用用 | Web工程生命周期 |
+    | request | Spring Web用用 | Web工程单次请求 |
+
+10. Spring EL
+```
+@Value("${database.driveName}")-->${...}代表占位符，会读取上下文的属性值装配到属性中
+
+@Value("#{T(System).currentTimeMillis()}")
+    -->T(...)代表引入类：System是 java.lang.*包含的类，为默认加载包。不需要写全限定名，其他包则需要；
+
+@Value("#{'字符串'}")
+@Value("#{浮点数'}")
+@Value("#{科学计数法赋值}")
+@Value("#{其他Bean.prop属性}")
+@Value("#{简单表达式}")
+```
+
+#### 开始约定编程——Spring AOP
+
 
 
 
