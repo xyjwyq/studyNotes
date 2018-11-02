@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>css3--lesson1</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            text-decoration: none;
+            color: #000;
+        }
+
+        .wrapper {
+            width: 400px;
+            min-height: 300px;
+            border: 1px solid #aaa;
+            margin: 20px auto;
+        }
+
+        .wrapper>.menu-body {
+            padding-bottom: 10px;
+        }
+
+        .menu-body>h3 {
+            background-color: #ccc;
+        }
+
+        .menu-body>h3 a {
+            display: block;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 0 10px;
+        }
+
+        .menu-body>h3+div {
+            display: none;
+            padding: 10px;
+        }
+
+        .menu-body>h3+div:target {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="menu-body">
+            <h3><a href="#html">html</a></h3>
+            <div id="html">html</div>
+        </div>
+        <div class="menu-body">
+            <h3><a href="#css">css</a></h3>
+            <div id="css">css</div>
+        </div>
+        <div class="menu-body">
+            <h3><a href="#js">js</a></h3>
+            <div id="js">js</div>
+        </div>
+    </div>
+
+</body>
+
+</html>
