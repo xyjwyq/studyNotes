@@ -11,6 +11,7 @@
     - [选择器](#选择器)
     - [边框和背景](#边框和背景)
     - [文本与颜色](#文本与颜色)
+    - [盒模型](#盒模型)
 - [Bootstrap](#bootstrap)  
 - [HTML5](#html5)  
 - [Webpack](#webpack)  
@@ -133,7 +134,7 @@ CSS3对伪元素进行了一定的调整，在以前的基础上增加了一个:
 
 注：火狐下必须加-moz-，-moz-::selection
 ```
-3. **条件选择器**  
+4. **条件选择器**  
 ```
 E > F  an F element child of an E element
 直接子元素
@@ -267,7 +268,7 @@ text-shadow ———— 文本阴影
 
     word-wrap: normal|break-word;
         - normal: 单词换行
-        - normal: 强制换行
+        - break-word: 强制换行
 
     Word-break：normal| break-all |keep-all; 
         - break-all: 强制换行，不区分单词
@@ -275,12 +276,12 @@ text-shadow ———— 文本阴影
         - normal: 单词换行
         - break-all强行截断英文单词，达到词内换行效果； keep-all不允许字断开。单词整个换行)
     
-    White-space： normal | pre | nowrap | pre-line | pre-wrap | inherit
+    White-space： normal | pre  | pre-line | pre-wrap | nowrap | inherit
         - 对空白操作也可用于换行
         - Pre : 所有空格。包括换行符，都会被浏览器扣留，其行为方式类似于 HTML中的 pre标签
-        - nowrap: 文本不会换行，文本会在同一行上，并且不识别换行符和多空格（将紧挨的多个空格合并为一个空格），直到碰到换行标签 br为止
         - pre-line 保留换行符并合并空格，换行由单词长度决定，单词展现完全，即正常换行；此属性值不支持IE7.0和Firefox3.0以下版本浏览器
         - pre-wrap  保留换行符和空格，换行由单词长度决定，单词展现完全，即正常换行；此属性值不支持IE7.0和Firefox3.0以下版本浏览器
+        - nowrap: 文本不会换行，文本会在同一行上，并且不识别换行符和多空格（将紧挨的多个空格合并为一个空格），直到碰到换行标签 br为止
         - inherit： 继承父元素的white-space属性值，此属性值再所有的IE浏览器都不支持
 ```
 ```
@@ -289,7 +290,7 @@ text-shadow ———— 文本阴影
     @font-face{
         font-family:”myFirstFont”;
         src:url('Sansation_Light.ttf'),
-        url(‘Sansation_Light.eot') format(‘eot’)；
+            url(‘Sansation_Light.eot') format(‘eot’)；
     }
     p{
         font-family:”myFristFont”;
@@ -331,7 +332,7 @@ Columns ———— 多列布局
     column-span: 1/all 
         - 设置多列布局元素内的子元素，可以跨列，类似标题效果。即一个新闻标题要横跨所有内容列。注：此属性要在子元素上设置。
 ```
-1. **颜色**  
+2. **颜色**  
 ```
 RGBA ———— 颜色值
 
@@ -369,9 +370,21 @@ Gradient ———— 渐变的背景颜色
     background: linear-gradient(to top/right/bottom/left/right bottom/..., green 0%, red 20%, blue 100%);
 
     2）径向渐变（radial - at）
-    radial-gradient(shape at position, color [percent] , color, …)
+    
+    background: radial-gradient(shape <extent-keyword> at position, <color-stop>);
         - shape:放射的形状，可以为原型circle，可以为椭圆ellipse
         - position: 圆心位置，可以两个值，也可以一个，如果为一个时，第二个值默认center 即 50%。值类型可以为，百分数，距离像素，也可以是方位值(left,top...); /*x 轴主半径 y轴次半径*/
+        - <extent-keyword> = closest-corner | closest-side | farthest-corner | farthest-side  
+            - closest-side: 指定径向渐变的半径长度为从圆心到离圆心最远的角  
+            - closest-corner: 指定径向渐变的半径长度为从圆心到离圆心最近的边   
+            - farthest-side: 指定径向渐变的半径长度为从圆心到离圆心最近的角  
+            - farthest-corner: 指定径向渐变的半径长度为从圆心到离圆心最远的边  
+        - <color-stop> = <color> [ <percentage> | <length> ]? 
+
+    - background-image: radial-gradient(ellipse farthest-corner at 45px 45px , #00FFFF 0%, rgba(0, 0, 255, 0) 50%, #0000FF 95%);
+    - background-image: radial-gradient(ellipse farthest-corner at 470px 47px , #FFFF80 20%, rgba(204, 153, 153, 0.4) 30%, #E6E6FF 60%);
+    - background-image: radial-gradient(farthest-corner at 45px 45px , #FF0000 0%, #0000FF 100%);
+    - background-image: radial-gradient(16px at 60px 50% , #000000 0%, #000000 14px, rgba(0, 0, 0, 0.3) 18px, rgba(0, 0, 0, 0) 19px);
 ```
 ```
 transparent 透明色颜色值   
@@ -386,7 +399,78 @@ transparent 透明色颜色值
                 border-right-color:blue/transparent;
             }
 ```
+#### 盒模型
+```
+在css中盒模型被分为两种，第一种是w3c的标准盒模型，另一种是IE6混杂模式的传统模型。他们都是对元素计算尺寸的模型。但他们的不同是计算的方式不同。
+    
+    W3C标准盒模型
+        - element空间高度（盒子） = width + padding + border;
+        - width 为内容高度。即width不包括 padding 和 border
+    
+    IE6混杂模式盒模型
+        - 内容高度 （真实高度）= width - padding - border，即 设置width的数值就是 element 的空间高度，width包含 padding 和border
 
+    box-sizing : border-box/content-box
+        - content-box为 W3C标准盒子
+        - border-box为 IE6混杂模式的盒子
+```
+```
+内容溢出
+
+    overflow: visible | hidden | scroll | auto --> overflow不属于复合属性
+    Overflow-x: visible | hidden | scroll | auto 
+    Overflow-y: visible | hidden | scroll | auto 
+        - Visible: 默认值。表示不见且容器中的任何内容，不添加滚动条，元素将被剪切为包含对象的窗口大小，而且clip属性设置将失败
+        - Auto：在需要时剪切内容并添加滚动条。也就是说当内容超过容器的宽度或者高度时，溢出的内容将会隐藏在容器中，并且会添加滚动条，用户可以拖动滚动条查看隐藏在容器中的内容。
+        - hidden：内容溢出容器时，所有内容都将隐藏，而且不显示滚动条。
+        - Scroll：不管内容有没有溢出容器，overflow-x都会显示横向的滚动条，而overflow-y显示纵向滚动条
+```
+```
+resize ———— 内容缩放属性  
+
+    resize: none | both | horizontal | vertical | inherit
+        - 主要是用来改变元素尺寸大小的，其主要目的是增强用户体验
+        - None: 用户不能拖拽元素修改大小
+        - Both：用户可以拖动元素，同时修改元素的宽度和高度
+        - Horizontal：用户可以拖动元素，仅可以修改元素的宽度，但不能修改元素的高度
+        - Vertical：用户可以拖动元素，尽可改变元素的高度，但不能改变元素的宽度。
+        - Inherit：继承父元素的resize属性值
+
+    IE不兼容， 常用在textarea中
+```
+```
+flex ———— CSS3弹性盒模型
+
+    display:flex --> flex为复合属性，且必须配合父元素display:flex使用。
+
+    以下6个属性设置在项目（子元素）上:
+        - flex-grow：放大比例
+            - 根据所设置的比例分配盒子所剩余的空间拓展：左右两栏布局 默认值0；
+        - flex-shrink：缩小比例
+            - 设置元素的收缩比例— 多出盒子的部分，按照比例的大小砍掉相应的大小，即比例越大，被砍的越大，默认值1；
+        - flex-basis：伸缩基准值
+            - 伸缩基准值，项目占据主轴的空间；该属性设置元素的宽度或高度，当然width也可以用来设置元素宽度，如果元素上同时出现了   width 和flex-basis那么 flex-basis会覆盖 width的值
+        - flex：是flex-grow, flex-shrink 和 flex-basis的简写
+        - order：排列顺序
+            - number定义项目的排列顺序。数值越小，排列越靠前，默认为0
+        - align-self ：单个项目对齐方式
+            - align-self属性允许单个项目有与其他项目不一样的对齐方式，可覆盖align-items属性。默认值为auto，表示继承父元素的     align-items属性，如果没有父元素，则等同于stretch。
+            - align-self: auto | flex-start | flex-end | center | baseline | stretch;
+
+    以下6个属性设置在容器上
+        - flex-direction 决定主轴的方向
+            - flex-direction: row | row-reverse | column | column-reverse;
+        - flex-wrap 是否换行
+            - 默认情况下，项目都排在一条线（又称"轴线"）上。flex-wrap属性定义，如果一条轴线排不下，如何换行。
+            - flex-wrap: nowrap | wrap | wrap-reverse;
+        - flex-flow  flex-direction和 flex-wrap的简写，默认值为row nowrap。
+        - justify-content  项目在主轴上的对齐方式
+            - justify-content: flex-start | flex-end | center | space-between | space-around;
+        - align-items  在侧轴上如何对齐
+            - align-items: flex-start | flex-end | center | baseline | stretch;
+        - align-content  定义了多根轴线的对齐方式。如果项目只有一根轴线，该属性不起作用。
+            - align-content: flex-start | flex-end | center | space-between | space-around | stretch
+```
 
 
 
