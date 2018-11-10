@@ -255,7 +255,7 @@ background-size ————  设置背景图片大小
 ```css
 background
 
-    background-image: url(“./img/a.jpg”); //设置元素背景图片
+    background-image: url("./img/a.jpg"); //设置元素背景图片
     background-repeat： repeat/no-repeat； //设置背景图像的平铺方式 默认repeat
     background-position:left top//设置元素的背景定位起点，默认值为left top
     background-size：auto;设置背景图像的尺寸大小，默认值auto
@@ -310,7 +310,7 @@ text-shadow ———— 文本阴影
     @font-face{
         font-family:”myFirstFont”;
         src:url('Sansation_Light.ttf'),
-            url(‘Sansation_Light.eot') format(‘eot’)；
+            url('Sansation_Light.eot') format('eot')；
     }
     p{
         font-family:”myFristFont”;
@@ -407,9 +407,9 @@ Gradient ———— 渐变的背景颜色
 
         - <color-stop> = <color> [ <percentage> | <length> ]? 
 
-    - background-image: radial-gradient(ellipse farthest-corner at 45px 45px , #00FFFF 0%, rgba(0, 0, 255, 0) 50%, #0000FF 95%);
-    - background-image: radial-gradient(ellipse farthest-corner at 470px 47px , #FFFF80 20%, rgba(204, 153, 153, 0.4) 30%, #E6E6FF 60%);
-    - background-image: radial-gradient(farthest-corner at 45px 45px , #FF0000 0%, #0000FF 100%);
+    - background-image: radial-gradient(ellipse farthest-corner at 45px 45px, #00ffff 0%, rgba(0, 0, 255, 0) 50%, #0000ff 95%);
+    - background-image: radial-gradient(ellipse farthest-corner at 470px 47px , #ffff80 20%, rgba(204, 153, 153, 0.4) 30%, #e6e6ff 60%);
+    - background-image: radial-gradient(farthest-corner at 45px 45px , #ff0000 0%, #0000ff 100%);
     - background-image: radial-gradient(16px at 60px 50% , #000000 0%, #000000 14px, rgba(0, 0, 0, 0.3) 18px, rgba(0, 0, 0, 0) 19px);
 ```
 ```css
