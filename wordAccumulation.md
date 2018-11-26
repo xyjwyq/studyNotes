@@ -146,5 +146,63 @@
 
 ---
 
+#### 18-11-19
 
+`control`：控件  
+`console`：控制台  
+`const`：常数  
+`constant`：常数，常量  
+`constructor`：构造函数  
+`copy`：(v)复制，拷贝，(n)复件，副本  
+`creation`：创建，产生，生成  
+`cursor`：光标，游标  
+`custom`：定制  
+`data`：数据  
+`database`：数据库   
+`database schema`：数据库结构目录    
+`data member`:数据成员   
+`data structure`：数据结构
+
+---
+
+#### 18-11-20
+
+`datagram`：资料元，数据报文  
+`dead lock`：死锁  
+`debug`：调试，除错  
+`debugger`：除错器，调试器  
+`declaration`：宣告，声明  
+`deduction`：推导，推断  
+`default`：缺省，默认  
+`defer`：延迟，推迟  
+`define`：定义，预定义   
+`definition`：定义，定义区  
+`delegate`：委托，委派  
+`delegation`：委托，委派  
+`demarshal`：反编列，散集  
+`dereference`：引用   
+
+---
+
+#### 18-11-21
+
+`dereference operator`：解引用运算符  
+`derived class`：衍生类，派生类   
+`design by contract`：契约式设计  
+`design pattern`：设计模式，设计范式  
+`destroy`：摧毁  
+`destructor`：解构式，析构函数  
+`device`：装备  
+`dialog`：对话窗，对话框  
+`directive`：指令   
+`directory`：目录  
+`disk`：碟，盘  
+`dispatch`：分配，分派  
+`distributed computing`：分布式计算  
+`document`：文档  
+`dot operator`：点运算符  
+`driver`：驱动程序   
+`dynamic binding`：动态绑定
+
+---
 
