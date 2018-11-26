@@ -9,6 +9,7 @@
   - [居中问题](#居中问题)
   - [animation与transition的区别](#animation与transition的区别)
 - [JS](#js)
+  - [ES6中Map结构实现](#es6中map结构实现)
 
 ---
 
@@ -108,6 +109,111 @@ animation
 ### JS
 
 ---
+
+##### ES6中Map结构实现
+
+```javascript
+     function MyMap(arr = []) {
+        this.init();
+        for (let i = 0; i < arr.length; i++) {
+            this.set(...arr[i]); 
+        }
+      }
+
+      MyMap.fn = MyMap.prototype;
+      MyMap.fn.len = 8;
+      MyMap.fn.bucket = [];
+
+      MyMap.fn.init = function() {
+        this.size = 0;
+        for (let i = 0; i < this.len; i++) {
+          this.bucket[i] = { next: null };
+        }
+      };
+
+      MyMap.fn.makeHash = function(key) {
+        let hash = 0;
+        if (typeof key === "string") {
+          let len = key.length < 3 ? 3 : key.length;
+          for (let i = len - 3; i < len; i++) {
+            hash += key[i] ? key[i].charCodeAt() : 0;
+          }
+        } else {
+          hash = +key;
+        }
+        return hash;
+      };
+
+      MyMap.fn.set = function(key, value) {
+        let hash = this.makeHash(key);
+        let list = this.bucket[hash % this.len];
+        let node = list;
+        while (node.next) {
+          if (node.next.key === key) {
+            node.next.value = value;
+            return;
+          } else {
+            node = node.next;
+          }
+        }
+        node.next = { key, value, next: null };
+        this.size++;
+      };
+
+      MyMap.fn.get = function(key) {
+        let hash = this.makeHash(key),
+          list = this.bucket[hash % this.len],
+          node = list;
+        while (node.next) {
+          if (node.next.key === key) {
+            return node.next.value;
+          } else {
+            node = node.next;
+          }
+        }
+      };
+
+      MyMap.fn.has = function(key) {
+        let hash = this.makeHash(key),
+          list = this.bucket[hash % this.len],
+          node = list;
+        while (node.next) {
+          if (node.next.key === key) {
+            return true;
+          } else {
+            node = node.next;
+          }
+        }
+        return false;
+      };
+
+      MyMap.fn.delete = function(key) {
+        let hash = this.makeHash(key),
+          list = this.bucket[hash % this.len],
+          node = list;
+        while (node.next) {
+          if (node.next.key === key) {
+            node.next = node.next.next;
+            this.size--;
+            return true;
+          } else {
+            node = node.next;
+          }
+        }
+        return false;
+      };
+
+      MyMap.fn.clear = function() {
+        this.init();
+      };
+
+      MyMap.fn.forEach = function(func, thisArg = window) {
+        let _self = this;
+        for (let i = 0; i < _self.size; i++) {
+          func.apply(thisArg, [_self.key, _self.value, _self]);
+        }
+      };
+```
 
 
 
