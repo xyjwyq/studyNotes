@@ -10,6 +10,7 @@
   - [animation与transition的区别](#animation与transition的区别)
 - [JS](#js)
   - [ES6中Map结构实现](#es6中map结构实现)
+  - [ES6中Promise模拟实现](#es6中Promise模拟实现)
 
 ---
 
@@ -213,6 +214,97 @@ animation
           func.apply(thisArg, [_self.key, _self.value, _self]);
         }
       };
+```
+
+##### ES6中Promise模拟实现
+
+```javascript
+ 	class MyPromise {
+        constructor(fn) {
+          if (typeof fn !== "function") {
+            throw TypeError(`MyPromise resolver ${fn} is not a function`);
+          }
+          this.status = "pending";
+          this.data = undefined;
+          this.resolveCBArr = [];
+          this.rejectedCBArr = [];
+          let resolve = data => {
+            if (this.status === "pending") {
+              this.status = "resolve";
+              this.data = data;
+              //   this.resolveCB && this.resolveCB();
+              this.resolveCBArr.length && this.resolveCBArr.forEach(fn => fn());
+            }
+          };
+          let reject = data => {
+            if (this.status === "pending") {
+              this.status = "rejected";
+              this.data = data;
+              //   this.rejectedCB && this.rejectedCB();
+              this.rejectedCBArr.length &&
+                this.rejectedCBArr.forEach(fn => fn());
+            }
+          };
+          fn(resolve, reject);
+        }
+
+        then(resolveFn, rejectedFn) {
+          if (this.status === "resolve") {
+            setTimeout(() => {
+              let res = resolveFn(this.data);
+              if (res instanceof MyPromise) {
+                return res;
+              } else {
+                return MyPromise.resolve(res);
+              }
+            }, 0);
+          } else if (this.status === "rejected") {
+            setTimeout(() => {
+              let res = rejectedFn(this.data);
+              if (res instanceof MyPromise) {
+                return res;
+              } else {
+                return MyPromise.resolve(res);
+              }
+            }, 0);
+          } else if (this.status === "pending") {
+            return new MyPromise((resolve, rejected) => {
+              this.resolveCBArr.push(
+                (resolveFn => {
+                  return () => {
+                    let res = resolveFn(this.data);
+                    if (res instanceof MyPromise) {
+                      res.then(resolve, rejected);
+                    } else {
+                      resolve(res);
+                    }
+                  };
+                })(resolveFn)
+              );
+              this.rejectedCBArr.push(
+                (rejectedFn => {
+                  return () => {
+                    let res = rejectedFn(this.data);
+                    if (res instanceof MyPromise) {
+                      res.then(resolve, rejected);
+                    } else {
+                      resolve(res);
+                    }
+                  };
+                })(rejectedFn)
+              );
+            });
+          }
+        }
+        
+        static resolve(data) {
+          return new MyPromise((resolve, rejected) => resolve(data));
+        }
+        
+        static reject(data) {
+          return new MyPromise((resolve, rejected) => reject(data));
+        }
+      }
 ```
 
 
