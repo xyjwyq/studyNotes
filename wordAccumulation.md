@@ -103,7 +103,7 @@
 `class definition`：类定义  
 `class derivation`：类继承  
 `class head`：类头  
-`class hierarchy`：类层次体系  
+`class hierarchy`：类层次体系  //[ˈhaɪərɑ:ki]  
 `class library`：类库  
 `class  template`：类模板  
 `class template partial specializations`：类模板部分特化  
@@ -172,7 +172,7 @@
 `debug`：调试，除错  
 `debugger`：除错器，调试器  
 `declaration`：宣告，声明  
-`deduction`：推导，推断  
+`deduction`：推导，推断 [dɪˈdʌkʃn]  
 `default`：缺省，默认  
 `defer`：延迟，推迟  
 `define`：定义，预定义   
@@ -205,4 +205,77 @@
 `dynamic binding`：动态绑定
 
 ---
+
+#### 18-11-26
+
+`efficiency`：效率  
+`efficient`：高效  
+`end user`：终端用户  
+`entity`：实体  
+`encapsulation`：封装，包装  
+`enclosing class`：外围类  
+`enum`：枚举  
+`enumerators`：枚举成员，枚举器  
+`equal`：相等  
+`equality`：相等性  
+`equality operator`：等号运算符  
+`equivalence`：等价性，等同性  
+`equivalent`：等价，等同
+
+---
+
+#### 18-11-27
+
+`escape code`：转义碼  
+`evaluate`：评估，求值  
+`event driven`：事件驱动  
+`exception`：异常  
+`exception declaration`：异常声明  
+`exception handling`：异常处理  
+`exception specification`：异常规格，异常规范  
+`exit`：退出，退离  
+`explicit`：明显的，显式  
+`export`：输出  
+`expression`：表达式  
+
+---
+
+#### 18-11-28
+
+`facility`： 设施，设备  
+`feature`：特性  
+`field`：字段，值域  
+`file`：文件  
+`firmware`：固件  
+`flag`：标记  
+`flash memory`：闪存   
+`flexibility`：灵活性，弹性  
+`flush`：清理，扫清，刷新  
+`font`：字体，字型  
+`form`：表单，窗体  
+`formal parameter`： 形式参数   
+`forward declaration`：前置声明  
+`forwarding`：转发
+
+---
+
+#### 18-11-29
+
+`forwarding function`：转发函数  
+`fractal`：碎形，分形  
+`framework`：框架  
+`full specialization`：全特化  
+`function`：函数  
+`function call operator`：调用操作符   
+`function object`：函数对象  
+`function overloaded resolution`：函数重载解决方案  
+`functionality`：功能，机能  
+`function template`：函数模板  
+`factor`：仿函数，因素，因子  
+`game`：游戏  
+`generate`：生成
+
+---
+
+
 
