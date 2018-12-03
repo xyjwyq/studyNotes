@@ -9,13 +9,18 @@ ES6学习笔记
 #### 目录
 
 - [块级绑定](#块级绑定)
+- [字符串扩展](#字符串扩展)
 - [函数扩展](#函数扩展)
 - [对象扩展](#对象扩展)
 - [解构](#解构)
+- [符号与符号属性](#符号与符号属性)
 - [Set与Map](#set与map)
-- [字符串扩展](#字符串扩展)
-- [数组扩展](#数组扩展)
 - [迭代器与生成器](#迭代器与生成器)
+- [JS中的类](#js中的类)
+- [数组扩展](#数组扩展)
+- [Promise](#promise)
+- [代理与反射接口](#代理与反射接口)
+- [用模块封装代码]( #用模块封装代码)
 
 ---
 
@@ -23,99 +28,420 @@ ES6学习笔记
 
 1. 使用var定义变量存在什么缺陷？
 
-```javascript
-- 使用var声明变量，变量在预编译阶段会进行声明提升，容易造成代码混乱，变量作用域混乱
-- 在相同作用域下，同一变量能被重复声明，容易造成冲突
-- 在全局作用域内使用var声明时会创建一个全局变量，同时也会成为window的一个属性，意味着全局对象的属性可能会意外的被重写覆盖
-```
+   ```javascript
+   - 使用var声明变量，变量在预编译阶段会进行声明提升，容易造成代码混乱，变量作用域混乱
+   - 在相同作用域下，同一变量能被重复声明，容易造成冲突
+   - 在全局作用域内使用var声明时会创建一个全局变量，同时也会成为window的一个属性，意味着全局对象的属性可能会意外的被重写覆盖
+   ```
 
 2. 为什么需要块级作用域？
 
-```javascript
-- ES5 只有全局作用域和函数作用域，没有块级作用域，这带来很多不合理的场景。
-- 第一种场景，内层变量可能会覆盖外层变量。
-- 第二种场景，用来计数的循环变量泄露为全局变量。
-```
+   ```javascript
+   - ES5 只有全局作用域和函数作用域，没有块级作用域，这带来很多不合理的场景。
+   - 第一种场景，内层变量可能会覆盖外层变量。
+   - 第二种场景，用来计数的循环变量泄露为全局变量。
+   ```
 
 3. 块级声明与块级作用域
 
-```javascript
-- 块级声明指的是该声明的变量无法被代码块外部访问。
-- 块作用域，又被称为词法作用域（lexical scopes），可以在如下的条件下创建：
-    - 函数内部
-    - 在代码块（即 { 和 }）内部
-```
+   ```javascript
+   - 块级声明指的是该声明的变量无法被代码块外部访问。
+   - 块作用域，又被称为词法作用域（lexical scopes），可以在如下的条件下创建：
+       - 函数内部
+       - 在代码块（即 { 和 }）内部
+   ```
 
 4. let与var
 
-```javascript
-- 相同
-	- 二者声明的语法，以及作用是一致的
-- 不同
-	- let将变量的作用域限制在当前的代码块中，不会将变量提升至当前作用域的顶部
-	- let不允许在相同的作用域内，重复声明同一变量
-	- 在全局作用域内使用let声明会创建一个全局变量，但是不会像全局对象(window)中添加任何属性
-```
+   ```javascript
+   - 相同
+   	- 二者声明的语法，以及作用是一致的
+   - 不同
+   	- let将变量的作用域限制在当前的代码块中，不会将变量提升至当前作用域的顶部
+   	- let不允许在相同的作用域内，重复声明同一变量
+   	- 在全局作用域内使用let声明会创建一个全局变量，但是不会像全局对象(window)中添加任何属性
+   ```
 
 5. let与const
 
-```javascript
-- 相同
-	- const 与let 的特点基本相同
-- 不同
-	- const声明和赋值要同时进行，不能先声明后赋值
-	- const声明的变量会被视为常量，这意味着它们不能再次被赋值(const是保证变量指向的那个内存地址不得改动，所以对于简单数据类型不能被修改，引用类型只能修改其内部值，不能重新定义引用值)
-```
+   ```javascript
+   - 相同
+   	- const 与let 的特点基本相同
+   - 不同
+   	- const声明和赋值要同时进行，不能先声明后赋值
+   	- const声明的变量会被视为常量，这意味着它们不能再次被赋值(const是保证变量指向的那个内存地址不得改动，所以对于简单数据类型不能被修改，引用类型只能修改其内部值，不能重新定义引用值)
+   ```
 
 6. TDZ(暂存性死区，temproal dead zone)
 
-```javascript
-- let 或 const声明的变量在声明之前不能被访问。如果执意这么做会出现错误，甚至是 typeof这种安全调用（safe operations）也不被允许的，造成这种现象的原因是该语句存在于TDZ之内    
-    
-- 当 JavaScript 引擎在作用域中寻找变量声明时，会将变量提升到函数/全局作用域的顶部（var）或是放入 TDZ（let 和const）内部。任何试图访问 TDZ 内部变量的行为都会以抛出运行时（runtime）错误而告终。当执行流达到变量声明的位置时，变量才会被移出 TDZ ，代表它们可以被安全使用
-    
-    if (true) {
-            // TDZ开始
-            tmp = 'abc'; // ReferenceError
-            console.log(tmp); // ReferenceError
-            let tmp; // TDZ结束
-            console.log(tmp); // undefined
-            tmp = 123;
-            console.log(tmp); // 123
-    }
-```
+   ```javascript
+   - let 或 const声明的变量在声明之前不能被访问。如果执意这么做会出现错误，甚至是 typeof这种安全调用（safe operations）也不被允许的，造成这种现象的原因是该语句存在于TDZ之内    
+       
+   - 当 JavaScript 引擎在作用域中寻找变量声明时，会将变量提升到函数/全局作用域的顶部（var）或是放入 TDZ（let 和const）内部。任何试图访问 TDZ 内部变量的行为都会以抛出运行时（runtime）错误而告终。当执行流达到变量声明的位置时，变量才会被移出 TDZ ，代表它们可以被安全使用
+       
+       if (true) {
+               // TDZ开始
+               tmp = 'abc'; // ReferenceError
+               console.log(tmp); // ReferenceError
+               let tmp; // TDZ结束
+               console.log(tmp); // undefined
+               tmp = 123;
+               console.log(tmp); // 123
+       }
+   ```
 
 7. 循环中的函数
 
-```javascript
-var a = [];
-for (let i = 0; i < 10; i++) {
-    a[i] = function () {
-     console.log(i);
-    };
-}
-a[6](); // 6
-
-    - 上面代码中，变量 i 是 let声明的，当前的 i 只在本轮循环有效，所以每一次循环的 i 其实都是一个新的变量，所以最后输出的是 6 。
-    
-    - 如果每一轮循环的变量 i 都是重新声明的，那它怎么知道上一轮循环的值，从而计算出本轮循环的值？这是因为 JavaScript 引擎内部会记住上一轮循环的值，初始化本轮的变量 i 时，就在上一轮循环的基础上进行计算。
-    
-    - 另外， for 循环还有一个特别之处，就是设置循环变量的那部分是一个父作用域，而循环体内部是一个单独的子作用域。
-    for (let i = 0; i < 3; i++) {
-        let i = 'abc';
+   ```javascript
+   var a = [];
+   for (let i = 0; i < 10; i++) {
+       a[i] = function () {
         console.log(i);
-    }
-    // abc
-    // abc
-    // abc
-	- 上面代码正确运行，输出了 3 次 abc 。这表明函数内部的变量 i 与循环变量 i 不在同一个作用域，有各自单独的作用域。
-```
+       };
+   }
+   a[6](); // 6
+   
+       - 上面代码中，变量 i 是 let声明的，当前的 i 只在本轮循环有效，所以每一次循环的 i 其实都是一个新的变量，所以最后输出的是 6 。
+       
+       - 如果每一轮循环的变量 i 都是重新声明的，那它怎么知道上一轮循环的值，从而计算出本轮循环的值？这是因为 JavaScript 引擎内部会记住上一轮循环的值，初始化本轮的变量 i 时，就在上一轮循环的基础上进行计算。
+       
+       - 另外， for 循环还有一个特别之处，就是设置循环变量的那部分是一个父作用域，而循环体内部是一个单独的子作用域。
+       for (let i = 0; i < 3; i++) {
+           let i = 'abc';
+           console.log(i);
+       }
+       // abc
+       // abc
+       // abc
+   	- 上面代码正确运行，输出了 3 次 abc 。这表明函数内部的变量 i 与循环变量 i 不在同一个作用域，有各自单独的作用域。
+   ```
 
 8. 块级绑定的最佳实践
 
-```javascript
-- const 是声明变量的默认方式，仅当你明确哪些变量之后需要修改的情况下再用 let声明那些变量。这个实践的缘由是大部分变量在初始化之后不应该被修改，因为这样做是造成 bug 的根源之一
-```
+   ```javascript
+   - const 是声明变量的默认方式，仅当你明确哪些变量之后需要修改的情况下再用 let声明那些变量。这个实践的缘由是大部分变量在初始化之后不应该被修改，因为这样做是造成 bug 的根源之一
+   ```
+
+---
+
+##### 字符串扩展
+
+1. 更佳的unicode支持
+
+   ```javascript
+   - JavaScript 允许采用 \uxxxx 形式表示一个字符，其中 xxxx 表示字符的 Unicode 码点。
+       "\u0061" // "a"
+   - 这种表示法只限于码点在 \u0000 ~ \uFFFF 之间的字符。超出这个范围的字符，必须用两个双字节的形式表示。
+   
+   - UTF-16 的前 2 个代码点由单个 16 位代码单元表示。这个范围被称作基本多语言面（Basic Multilingual Plane，BMP）。任何超出该范围的部分都是增补的语言面（supplementary plane），代码点将不能被单一的 16 位代码单元表示。
+   - 为了解决这个问题，UTF-16 引入了代理项对（surrogate pair）来让两个 16 位代码单元表示一个代码点。这意味着字符既可能是包含单个代码单元的 16位 BMP 字符，也可能是由两个代码单元组成的位于增补语言面的 32 位字符
+   - 在 ECMAScript 5 中，所有的字符串操作针对的是 16 位代码单元，意味着如果编码的 UTF-16 字符串包含代理项对，那么可能会得到意想不到的结果
+   ```
+
+   I. codePointAt()方法
+
+   ```javascript
+   - codePointAt()，可以提取给定位置字符串的对应 Unicode 代码点。该方法接收代码单元而非字符的位置并返回一个整型值
+   - 除非操作的是非 BMP 字符，否则 codePointAt 方法的返回值与 charCodeAt() 相同。
+   
+   var text = "a" ;
+   
+   console.log(text.charCodeAt(0)); // 55362
+   console.log(text.charCodeAt(1)); // 57271
+   console.log(text.charCodeAt(2)); // 97
+   
+   console.log(text.codePointAt(0)); // 134071
+   console.log(text.codePointAt(1)); // 57271
+   console.log(text.codePointAt(2)); // 97
+   
+   - 对一个字符调用 codePointAt() 方法是判断它所包含代码单元数量的最容易的方法：
+   function is32Bit(c) {
+   	return c.codePointAt(0) > 0xFFFF;
+   }
+   console.log(is32Bit("" )); // true
+   console.log(is32Bit("a")); // false
+   ```
+
+   II. String.fromCodePoint() 方法
+
+   ```javascript
+   - String.fromCodePoint() 使用给定的代码点来产生相应的单个字符
+   
+   console.log(String.fromCodePoint(134071)); // ""
+   ```
+
+   III. normalize() 方法
+
+   ```javascript
+   - Unicode 另一个有趣的方面是，不同的字符在某些排序或比较操作中被认为是相同的。有两种方式可以确立两者之间的关系。
+   	- 第一，规范相等性
+   	- 第二，字符间的兼容性
+   
+   - ECMAScript 6 通过给字符串提供 normalize() 方法来支持 Unicode 规范格式。该方法接收一个字符串参数来获取以下 Unicode 规范格式中的一种并据此运行：
+   	- Normalization Form Canonical Composition ("NFC"), 默认的规范格式
+   	- Normalization Form Canonical Decomposition ("NFD")
+   	- Normalization Form Compatibility Composition ("NFKC")
+   	- Normalization Form Compatibility Decomposition ("NFKD")
+   
+   - 只需记住，当比较字符串时，它们必须被规范成同一种格式
+   var normalized = values.map(function(text) {
+   	return text.normalize();
+   });
+   normalized.sort(function(first, second) {
+       if (first < second) {
+       	return -1;
+       } else if (first === second) {
+       	return 0;
+       } else {
+       	return 1;
+       }
+   });
+   //该段代码讲 values 数组中的字符串转换为一种规范格式以便让元素可以被正确的排序。
+   
+   values.sort(function(first, second) {
+           var firstNormalized = first.normalize(),
+           secondNormalized = second.normalize();
+       
+           if (firstNormalized < secondNormalized) {
+           	return -1;
+           } else if (firstNormalized === secondNormalized) {
+           	return 0;
+           } else {
+           	return 1;
+           }
+   });
+   
+   values.sort(function(first, second) {
+       var firstNormalized = first.normalize("NFD"),
+       secondNormalized = second.normalize("NFD");
+       if (firstNormalized < secondNormalized) {
+       	return -1;
+       } else if (firstNormalized === secondNormalized) {
+       	return 0;
+       } else {
+       	return 1;
+       }
+   });
+   ```
+
+2. 字符串的其他改进
+
+   I. 确认子字符串的方法
+
+   ```javascript
+   - includes() 方法会在给定文本存在于字符串中的任意位置时返回 true，否则返回 false 。
+   - startsWith() 方法会在给定文本出现在字符串开头时返回 true，否则返回 false 。
+   - endsWith() 方法会在给定文本出现在字符串末尾时返回 true，否则返回 false 。
+   
+   - 每个方法都接收两个参数：需要搜索的文本和可选的起始索引值。
+   - 当提供第二个参数后，includes() 和 startsWith() 会以该索引为起始点进行匹配，而 endsWith() 将字符串的长度与参数值相减并将得到的值作为检索的起始点。
+   - 若第二个参数未提供，includes() 和 startsWith()会从字符串的起始中开始检索，endsWith() 则是从字符串的末尾。
+   ```
+
+   II. repeat()方法
+
+   ```javascript
+   - repeat() 方法，它接受一个数字参数作为字符串的重复次数。该方法返回一个重复包含初始字符串的新字符串，重复次数等于参数
+   console.log("x".repeat(3)); // "xxx"
+   console.log("hello".repeat(2)); // "hellohello"
+   console.log("abc".repeat(4)); // "abcabcabcabc"
+   ```
+
+3. 正则表达式的改进
+
+   I. 正则表达式副本
+
+   ```javascript
+   var re1 = /ab/i,
+   // ES6 中尚可，但是在 ES5 中会抛出错误
+   re2 = new RegExp(re1, "g");
+   console.log(re1.toString()); // "/ab/i"
+   console.log(re2.toString()); // "/ab/g"
+   console.log(re1.test("ab")); // true
+   console.log(re2.test("ab")); // true
+   console.log(re1.test("AB")); // true
+   console.log(re2.test("AB")); // false
+   ```
+
+   II. 标志位属性
+
+   ```javascript
+   - 在 ECMAScript 5 中，你可以使用 source 属性来获得正则表达式中的文本，不过你若想获得字符串表示的标志位，则需要像下面这样解析 toString() 方法输出的内容：
+   function getFlags(re) {
+   var text = re.toString();
+   	return text.substring(text.lastIndexOf("/") + 1, text.length);
+   }
+   // toString() 输出 "/ab/g"
+   var re = /ab/g;
+   console.log(getFlags(re)); // "g"
+   
+   //ES6
+   var re = /ab/g;
+   console.log(re.source); // "ab"
+   console.log(re.flags); // "g"
+   ```
+
+4. 模板字面量
+
+   ```javascript
+   模板字面量是 ECMAScript 6 针对 JavaScript 直到 ECMAScript 5 依然缺失的如下功能的回应：
+   	- 多行字符串：针对多行字符串的形式概念（formal concept）。
+   	- 基本的字符串格式化：将字符串中的变量置换为值的能力。
+   	- 转义 HTML：能将字符串进行转义并使其安全地插入到 HTML 的能力。
+   ```
+
+   I. 基础语法
+
+   ```javascript
+   //模板字面量由反引号（`） 而非一般字符串使用的单或双引号囊括
+   let message = `Hello world!`;
+   console.log(message); // "Hello world!"
+   console.log(typeof message); // "string"
+   console.log(message.length); // 12
+   
+   let message = `\`Hello\` world!`;
+   console.log(message); // "`Hello` world!"
+   console.log(typeof message); // "string"
+   console.log(message.length); // 14
+   ```
+
+   II. 多行字符串
+
+   ```javascript
+   //ES5解决方案
+   var message = "Multiline \
+   			  string";
+   //输出的 message 字符串不包含新行，因为反斜杠被视作续延（continuation）信号
+   console.log(message); // "Multiline string"
+   
+   //该行为被定义为一个 bug 而且许多开发者都建议避免使用这种形式
+   var message = "Multiline \n\
+   				string";
+   console.log(message); // "Multiline
+   					// string"
+   
+   var message = [
+                   "Multiline ",
+                   "string"
+                ].join("\n");
+   let message = "Multiline \n" +
+   				"string";
+   
+   //ES6
+   let message = `Multiline
+   string`;
+   console.log(message); // "Multiline
+   					// string"
+   console.log(message.length); // 16
+   
+   //反引号中的所有空白符都是字符串的一部分，使用缩进要小心
+   let message = `Multiline
+   				string`;
+   console.log(message); // "Multiline
+   						// string"
+   console.log(message.length); // 31
+   
+   //请考虑将多行模板字面量的第一行空置并在第二行开始缩进
+   let html = `
+   <div>
+   <h1>Title</h1>
+   </div>`.trim();
+   ```
+
+   III. 字符串置换
+
+   ```javascript
+   - 模板字面量看上去像是普通 JavaScript 字符串的升级版。两者之间的真正区别在于前者包含的置换操作
+   - 置换部分由 ${ 和 } 包含，其中可以放入任意 JavaScript 表达式
+   - 模板字面量可以访问作用域中定义的任何变量。若变量未定义，在严格和非严格模式下都会抛出错误
+   
+   let name = "Nicholas",
+   message = `Hello, ${name}.`;
+   console.log(message); // "Hello, Nicholas."
+   
+   let count = 10,
+       price = 0.25,
+   message = `${count} items cost $ ${(count * price).toFixed(2)}.`;
+   console.log(message); // "10 items cost $2.50."
+   
+   let name = "Nicholas",
+       message = `Hello, ${
+   		`my name is ${ name }`
+   	}.`;
+   console.log(message); // "Hello, my name is Nicholas."
+   ```
+
+   IV. 模板标签
+
+   ```javascript
+   //模板字面量真正的强大之处来源于模板标签。一个模板标签可以被转换为模板字面量并作为最终值返回。标签在模板的头部，即左 ` 字符之前指定
+   let message = tag`Hello world`;
+   
+   - 一个标签仅代表一个函数，它接收需要处理的模板字面量。
+   - 标签分别接收模板字面量中的片段，且必须将它们组合以得出结果。
+   - 函数的首个参数为包含普通 JavaScript 字符串的数组，余下的参数为每次置换的对应值
+   
+   //标签函数一般使用剩余参数来定义，以便轻松地处理数据
+   function tag(literals, ...substitutions) {
+   	// 返回一个字符串
+   }
+   
+   let count = 10,
+       price = 0.25,
+       message = passthru`${count} items cost $ ${(count * price).toFixed(2)}.`;
+   // 注意：gitbook 解析 markdown 语法时存在一个 bug，在这里 $ $ 实际为 $$
+   - 如果有一个 passthru() 函数，那么它会接收三个参数。
+   	- 首当其冲的是一个 literals 数组，包含如下的元素：
+           - 在首次置换位置之前的空字符串（""）。
+           - 首次置换位置到第二次置换位置之前的字符串（" items cost $ "）。
+           - 第二次置换位置之后的字符串（"."）。
+       - 下个参数为 10，它刚好为 count 变量的值，同时也是 substitutions 数组的首个元素。
+       - 最后的参数为 "2.50"，即 (count * price).toFixed(2) 的计算结果，并作为 substitutions 数组的第二个元素
+   - 注意 literals 的首个元素为空字符串，以保证 literals[0] 总是代表字符串的起始位置，正如
+   literals[literals.length - 1] 涵盖字符串的末尾。同时置换（substitution）元素数目也总是比字面量（literal）元素少 1，意味着表达式 substitutions.length === literals.length - 1 的值总是为 true
+   
+   function passthru(literals, ...substitutions) {
+       let result = "";
+       // 只根据 substitution 的数目来运行循环
+       for (let i = 0; i < substitutions.length; i++) {
+           result += literals[i];
+           result += substitutions[i];
+       }
+       // 添加最后一个 literal
+       result += literals[literals.length - 1];
+       return result;
+   }
+   let count = 10,
+       price = 0.25,
+       message = passthru`${count} items cost $ ${(count * price).toFixed(2)}.`;
+   console.log(message); // "10 items cost $2.50."
+   
+   - 模板标签也可以访问字符串的原始信息，主要是它可以在转义字符生效前访问它，而最简单的方式是使用内置的 String.raw() 标签。如
+   let message1 = `Multiline\nstring`,
+   message2 = String.raw`Multiline\nstring`;
+   console.log(message1); // "Multiline
+   					// string"
+   console.log(message2); // "Multiline\\nstring"
+   
+   function raw(literals, ...substitutions) {
+       let result = "";
+       // 只根据 substitution 的数目来运行循环
+       for (let i = 0; i < substitutions.length; i++) {
+           result += literals.raw[i]; // use raw values instead
+           result += substitutions[i];
+       }
+       // 添加最后一个 literal
+       result += literals.raw[literals.length - 1];
+       return result;
+   }
+   let message = raw`Multiline\nstring`;
+   console.log(message); // "Multiline\\nstring"
+   console.log(message.length); // 17
+   //这里并非使用 literals 而是 literals.raw 来输出结果字符串。这意味着包括 Unicode 代码点在内的任何转义字符都会以原始的形式返回。
+   //当你想在输出的字符串中包含转义字符时原始字符串非常好用（例如，如果你想要生成包含代码的文档，那么你期待的是输出实际代码而不是产生的效果）
+   ```
+
+---
 
 ##### 函数扩展
 
@@ -658,6 +984,8 @@ a[6](); // 6
    findIndex(['a', 'b'], x => x === 'b'); // 1
    ```
 
+---
+
 ##### 对象扩展
 
 1. 对象类型
@@ -996,6 +1324,8 @@ a[6](); // 6
    - 任何 super 引用都要由 [[HomeObject]] 来决定它们要做的工作。当使用时，首先做的是在[[HomeObject]] 上调用 Object.getPrototypeOf() 来提取原型的引用，接下来在原型中寻找调用方法的命名。最后，绑定 this 值并调用该方法
    ```
 
+---
+
 ##### 解构
 
 1. 对象解构
@@ -1311,6 +1641,340 @@ a[6](); // 6
    // ...
    }
    ```
+
+---
+
+##### 符号与符号属性
+
+1. 创建符号值
+
+   ```javascript
+   - 符号没有字面量形式，这在 JS 的基本类型中是独一无二的，有别于布尔类型的 true 或数值类型的  42  等等。你可以使用全局 Symbol 函数来创建一个符号值
+   
+   let firstName = Symbol();
+   let person = {};
+   person[firstName] = "Nicholas";
+   console.log(person[firstName]); // "Nicholas"
+   //此代码创建了一个符号类型的 firstName 变量，并将它作为 person 对象的一个属性，而每次访问该属性都要使用这个符号值。为符号变量适当命名是个好主意，这样便能轻易说明它的用意
+   
+   let firstName = Symbol("first name");
+   let person = {};
+   person[firstName] = "Nicholas";
+   console.log("first name" in person); // false
+   console.log(person[firstName]); // "Nicholas"
+   // 符号的描述信息被存储在内部属性 [[Description]] 中，当符号的 toString() 方法被显式或隐式调用时，该属性都会被读取。此外没有任何办法可以从代码中直接访问  [[Description]]  属性。
+   // 建议始终应给符号提供描述信息，以便更好地阅读代码或进行调试
+   console.log(firstName); // "Symbol(first name)"
+   
+   - 由于符号是基本类型的值，因此你可以使用 typeof 运算符来判断一个变量是否为符号。 ES6 扩充了 typeof 的功能以便让它能返回  "symbol"  
+   ```
+
+2. 使用符号值
+
+   ```javascript
+   - 可以在任意能使用“可计算属性名”的场合使用符号
+   
+   let firstName = Symbol("first name");
+   // 使用一个可计算字面量属性
+   let person = {
+   	[firstName]: "Nicholas"
+   };
+   // 让该属性变为只读
+   Object.defineProperty(person, firstName, { writable: false });
+   let lastName = Symbol("last name");
+   Object.defineProperties(person, {
+       [lastName]: {
+           value: "Zakas",
+           writable: false
+       }
+   });
+   console.log(person[firstName]); // "Nicholas"
+   console.log(person[lastName]); // "Zakas"
+   ```
+
+3. 共享符号值
+
+   ```javascript
+   - 若想创建共享符号值，应使用 Symbol.for() 方法而不是 Symbol() 方法。 
+   - Symbol.for() 方法仅接受字符串类型的单个参数，作为目标符号值的标识符，此参数同时也会成为该符号的描述信息
+   
+   let uid = Symbol.for("uid");
+   let object = {};
+   object[uid] = "12345";
+   console.log(object[uid]); // "12345"
+   console.log(uid); // "Symbol(uid)"
+   - Symbol.for() 方法首先会搜索全局符号注册表，看是否存在一个键值为 "uid" 的符号值。
+   	- 若是，该方法会返回这个已存在的符号值；
+   	- 否则，会创建一个新的符号值，并使用该键值将其记录到全局符号注册表中，然后返回这个新的符号值。
+   - 这就意味着此后使用同一个键值去调用 Symbol.for() 方法都会返回同一个符号值
+   
+   let uid = Symbol.for("uid");
+   let object = {
+   	[uid]: "12345"
+   };
+   console.log(object[uid]); // "12345"
+   console.log(uid); // "Symbol(uid)"
+   let uid2 = Symbol.for("uid");
+   console.log(uid === uid2); // true
+   console.log(object[uid2]); // "12345"
+   console.log(uid2); // "Symbol(uid)"
+   
+   - 共享符号值还有另一个独特用法，可以使用 Symbol.keyFor() 方法在全局符号注册表中根据符号值检索出对应的键值
+   let uid = Symbol.for("uid");
+   console.log(Symbol.keyFor(uid)); // "uid"
+   let uid2 = Symbol.for("uid");
+   console.log(Symbol.keyFor(uid2)); // "uid"
+   let uid3 = Symbol("uid");
+   console.log(Symbol.keyFor(uid3)); // undefined
+   
+   - 全局符号注册表类似于全局作用域，是一个共享环境，这意味着你不应当假设其中是否已存在某些值。在使用第三方组件时，为符号的键值使用命名空间能够减少命名冲突的可能性
+   ```
+
+4. 符号值得转换 
+
+   ```javascript
+   - 符号类型在进行转换时非常不灵活，因为其他类型缺乏与符号值的合理等价，尤其是符号值无法被转换为字符串值或数值。因此将符号作为属性所达成的效果，是其他类型所无法替代的
+   
+   let uid = Symbol.for("uid"),
+   desc = String(uid);
+   console.log(desc); // "Symbol(uid)"
+   
+   let uid = Symbol.for("uid"),
+   desc = uid + ""; // 引发错误！
+   
+   let uid = Symbol.for("uid"),
+   sum = uid / 1; // 引发错误！
+   ```
+
+5. 检索符号属性
+
+   ```javascript
+   - Object.keys() 与 Object.getOwnPropertyNames() 方法可以检索对象的所有属性名称，
+   	- 前者返回所有的可枚举属性名称
+   	- 后者的返回值则不会顾虑属性是否可枚举。
+   	- 为了延续它们在 ES5 中的功能，二者都不能返回符号类型的属性。
+       - ES6 新增了 Object.getOwnPropertySymbols() 方法，以便检索对象的符号类型属性
+       
+   let uid = Symbol.for("uid");
+   let object = {
+   	[uid]: "12345"
+   };
+   let symbols = Object.getOwnPropertySymbols(object);
+   console.log(symbols.length); // 1
+   console.log(symbols[0]); // "Symbol(uid)"
+   console.log(object[symbols[0]]); // "12345"
+   ```
+
+6. 使用知名符号暴露内部方法
+
+   ```javascript
+   - ES6 定义了“知名符号”来代表 JS 中一些公共行为，而这些行为此前被认为只能是内部操作。
+   - 每一个知名符号都对应全局 Symbol 对象的一个属性
+   这些知名符号是：
+   	- Symbol.hasInstance ：供 instanceof 运算符使用的一个方法，用于判断对象继承关系。
+   	- Symbol.isConcatSpreadable ：一个布尔类型值，在集合对象作为参数传递给Array.prototype.concat() 方法时，指示是否要将该集合的元素扁平化。
+   	- Symbol.iterator ：返回迭代器的一个方法。
+   	- Symbol.match ：供 String.prototype.match() 函数使用的一个方法，用于比较字符串。
+   	- Symbol.replace ：供 String.prototype.replace() 函数使用的一个方法，用于替换子字符串。
+   	- Symbol.search ：供 String.prototype.search() 函数使用的一个方法，用于定位子字符串。
+   	- Symbol.species ：用于产生派生对象的构造器。
+   	- Symbol.split ：供 String.prototype.split() 函数使用的一个方法，用于分割字符串。
+   	- Symbol.toPrimitive ：返回对象所对应的基本类型值的一个方法。
+   	- Symbol.toStringTag ：供 String.prototype.toString() 函数使用的一个方法，用于创建对象的描述信息。
+   	- Symbol.unscopables ：一个对象，其属性指示了哪些属性名不允许被包含在 with 语句中。
+   ```
+
+   I. Symbol.hasInstance
+
+   ```javascript
+   - 每个函数都具有一个 Symbol.hasInstance 方法，用于判断指定对象是否为本函数的一个实例。
+   	- 这个方法定义在 Function.prototype 上，因此所有函数都继承了面对 instanceof 运算符时的默认行为。 		- Symbol.hasInstance  属性自身是不可写入、不可配置、不可枚举的，从而保证它不会被错误重写
+   - Symbol.hasInstance 方法只接受单个参数，即需要检测的值。如果该值是本函数的一个实例，则方法会返回 true 
+   
+   obj instanceof Array;
+   // 等价于
+   Array[Symbol.hasInstance](obj);
+   
+   function MyObject() {
+   	// ...
+   }
+   Object.defineProperty(MyObject, Symbol.hasInstance, {
+       value: function(v) {
+       	return false;
+       }
+   });
+   let obj = new MyObject();
+   console.log(obj instanceof MyObject); // false
+   
+   function SpecialNumber() {
+   	// empty
+   }
+   Object.defineProperty(SpecialNumber, Symbol.hasInstance, {
+       value: function(v) {
+       	return (v instanceof Number) && (v >=1 && v <= 100);
+       }
+   });
+   let two = new Number(2),
+   zero = new Number(0);
+   console.log(two instanceof SpecialNumber); // true
+   console.log(zero instanceof SpecialNumber); // false
+   ```
+
+   II. Symbol.isConcatSpreadable
+
+   ```javascript
+   - Symbol.isConcatSpreadable 属性是一个布尔类型的属性，它表示目标对象拥有长度属性与数值类型的键、并且数值类型键所对应的属性值在参与 concat() 调用时需要被分离为个体。
+   	- 该符号与其他的知名符号不同，默认情况下并不会作为任意常规对象的属性。
+   	- 它只出现在特定类型的对象上，用来标示该对象在作为 concat() 参数时应如何工作，从而有效改变该对象的默认行为。
+       - 可以用它来定义任意类型的对象，让该对象在参与  concat()  调用时能与数组类似
+       
+       let collection = {
+           0: "Hello",
+           1: "world",
+           length: 2,
+           [Symbol.isConcatSpreadable]: true
+       };
+       let messages = [ "Hi" ].concat(collection);
+       console.log(messages.length); // 3
+       console.log(messages); // ["hi","Hello","world"]
+   ```
+
+   III. Symbol.match、Symbol.replace、Symbol.search、Symbol.split
+
+   ```javascript
+   - 这 4 个符号表示将正则表达式作为字符串对应方法的第一个参数传入时应调用的方法， 
+   	- Symbol.match 对应 match()  方法
+       - Symbol.replace 对应 replace() 
+   	- Symbol.search 对应 search()
+   	- Symbol.split 则对应 split() 。
+   - 这些符号属性被定义在  RegExp.prototype上作为默认实现，以供对应的字符串方法使用
+   
+   - Symbol.match ：此函数接受一个字符串参数，并返回一个包含匹配结果的数组；若匹配失败，则返回  null  。
+   - Symbol.replace ：此函数接受一个字符串参数与一个替换用的字符串，并返回替换后的结果字符串。
+   - Symbol.search ：此函数接受一个字符串参数，并返回匹配结果的数值索引；若匹配失败，则返回 -1。
+   - Symbol.split ：此函数接受一个字符串参数，并返回一个用匹配值分割而成的字符串数组。
+   
+   // 有效等价于 /^.{10}$/
+   let hasLengthOf10 = {
+       [Symbol.match]: function(value) {
+       	return value.length === 10 ? [value] : null;
+       },
+       [Symbol.replace]: function(value, replacement) {
+       	return value.length === 10 ? replacement : value;
+       },
+       [Symbol.search]: function(value) {
+       	return value.length === 10 ? 0 : -1;
+       },
+       [Symbol.split]: function(value) {
+       	return value.length === 10 ? ["", ""] : [value];
+       }
+   };
+   let message1 = "Hello world", // 11 characters
+       message2 = "Hello John"; // 10 characters
+   
+   let match1 = message1.match(hasLengthOf10),
+       match2 = message2.match(hasLengthOf10);
+   console.log(match1); // null
+   console.log(match2); // ["Hello John"]
+   
+   let replace1 = message1.replace(hasLengthOf10, "Howdy!"),
+       replace2 = message2.replace(hasLengthOf10, "Howdy!");
+   console.log(replace1); // "Hello world"
+   console.log(replace2); // "Howdy!"
+   
+   let search1 = message1.search(hasLengthOf10),
+       search2 = message2.search(hasLengthOf10);
+   console.log(search1); // -1
+   console.log(search2); // 0
+   
+   let split1 = message1.split(hasLengthOf10),
+       split2 = message2.split(hasLengthOf10);
+   console.log(split1); // ["Hello world"]
+   console.log(split2); // ["", ""]
+   ```
+
+   IV. Symbol.toPrimitive
+
+   ```javascript
+   - Symbol.toPrimitive 方法被定义在所有常规类型的原型上，规定了在对象被转换为基本类型值的时候会发生什么。当需要转换时， Symbol.toPrimitive 会被调用，并按照规范传入一个提示性的字符串参数。该参数有 3 种可能：
+   	- 当参数值为  "number"  的时候，Symbol.toPrimitive 应当返回一个数值
+       - 当参数值为  "string"  的时候，应当返回一个字符串
+       - 当参数为  "default"  的时候，对返回值类型没有特别要求
+       
+   - 对于大部分常规对象，“数值模式”依次会有下述行为：
+   	- 调用  valueOf()  方法，若结果是一个基本类型值，那么返回它；
+   	- 否则，调用  toString()  方法，若结果是一个基本类型值，那么返回它；
+   	- 否则，抛出一个错误。
+   - 类似的，对于大部分常规对象，“字符串模式”依次会有下述行为：
+   	- 调用  toString()  方法，若结果是一个基本类型值，那么返回它；
+   	- 否则，调用  valueOf()  方法，若结果是一个基本类型值，那么返回它；
+   	- 否则，抛出一个错误。
+   - 在多数情况下，常规对象的默认模式都等价于数值模式（只有 Date 类型例外，它默认使用字符串模式）。通过定义 Symbol.toPrimitive 方法，你可以重写这些默认的转换行为
+   
+   - “默认模式”只在使用 == 运算符、+ 运算符、或者传递单一参数给 Date 构造器的时候被使用，而大部分运算符都使用字符串模式或是数值模式
+   
+   function Temperature(degrees) {
+   	this.degrees = degrees;
+   }
+   Temperature.prototype[Symbol.toPrimitive] = function(hint) {
+       switch (hint) {
+           case "string":
+           return this.degrees + "\u00b0"; // 温度符号
+       case "number":
+       	return this.degrees;
+       case "default":
+       	return this.degrees + " degrees";
+       }
+   };
+   let freezing = new Temperature(32);
+   console.log(freezing + "!"); // "32 degrees!"
+   console.log(freezing / 2); // 16
+   console.log(String(freezing)); // "32°"
+   ```
+
+   V. Symbol.isStringTag
+
+   ```javascript
+   - 该符号代表了所有对象的一个属性，定义了 Object.prototype.toString.call() 被调用时应当返回什么值
+   - 除非进行了特殊指定，否则所有对象都会从  Object.prototype  继承Symbol.toStringTag  属性，其默认的属性值是字符串  "Object" 
+   
+   function Person(name) {
+   	this.name = name;
+   }
+   Person.prototype[Symbol.toStringTag] = "Person";
+   let me = new Person("Nicholas");
+   console.log(me.toString()); // "[object Person]"
+   console.log(Object.prototype.toString.call(me)); // "[object Person]"
+   
+   function Person(name) {
+   	this.name = name;
+   }
+   Person.prototype[Symbol.toStringTag] = "Person";
+   Person.prototype.toString = function() {
+   	return this.name;
+   };
+   let me = new Person("Nicholas");
+   console.log(me.toString()); // "Nicholas"
+   console.log(Object.prototype.toString.call(me)); // "[object Person]"
+   
+   function Person(name) {
+   	this.name = name;
+   }
+   Person.prototype[Symbol.toStringTag] = "Array";
+   Person.prototype.toString = function() {
+   	return this.name;
+   };
+   let me = new Person("Nicholas");
+   console.log(me.toString()); // "Nicholas"
+   console.log(Object.prototype.toString.call(me)); // "[object Array]"
+   
+   // 建议不要用这种方式修改内置对象，但语言本身并没有禁止该行为
+   Array.prototype[Symbol.toStringTag] = "Magic";
+   let values = [];
+   console.log(Object.prototype.toString.call(values)); // "[object Magic]"
+   ```
+
+---
 
 ##### Set与Map
 
@@ -1670,322 +2334,1303 @@ a[6](); // 6
        - 如果你想使用非对象类型作键，那么 map 就是你唯一的选择
    ```
 
-##### 字符串扩展
+---
 
-1. 更佳的unicode支持
+##### 迭代器与生成器
+
+1. 循环的问题
 
    ```javascript
-   - JavaScript 允许采用 \uxxxx 形式表示一个字符，其中 xxxx 表示字符的 Unicode 码点。
-       "\u0061" // "a"
-   - 这种表示法只限于码点在 \u0000 ~ \uFFFF 之间的字符。超出这个范围的字符，必须用两个双字节的形式表示。
-   
-   - UTF-16 的前 2 个代码点由单个 16 位代码单元表示。这个范围被称作基本多语言面（Basic Multilingual Plane，BMP）。任何超出该范围的部分都是增补的语言面（supplementary plane），代码点将不能被单一的 16 位代码单元表示。
-   - 为了解决这个问题，UTF-16 引入了代理项对（surrogate pair）来让两个 16 位代码单元表示一个代码点。这意味着字符既可能是包含单个代码单元的 16位 BMP 字符，也可能是由两个代码单元组成的位于增补语言面的 32 位字符
-   - 在 ECMAScript 5 中，所有的字符串操作针对的是 16 位代码单元，意味着如果编码的 UTF-16 字符串包含代理项对，那么可能会得到意想不到的结果
+   - for循环非常直观，然而若它被嵌套使用而要追踪多个变量时，复杂度就会提高，由此也更容易引发错误。 
+   - for循环代码会被写在多个地方，一不小心就会写错循环变量。迭代器正是用来解决此问题的
    ```
 
-   I. codePointAt()方法
+2. 迭代器
 
    ```javascript
-   - codePointAt()，可以提取给定位置字符串的对应 Unicode 代码点。该方法接收代码单元而非字符的位置并返回一个整型值
-   - 除非操作的是非 BMP 字符，否则 codePointAt 方法的返回值与 charCodeAt() 相同。
+   - 迭代器是被专用设计用于迭代的对象，带有特定接口。
+   - 所有的迭代器对象都拥有next()方法，调用时会返回一个结果对象。
+   	- 结果对象有两个属性：对应下一个值的value，以及一个布尔类型的done，其值为true时表示没有更多值可供使用
+   - 迭代器持有一个指向集合位置的内部指针，每当调用了  next()  方法，迭代器就会返回相应的下一个值。
    
-   var text = "a" ;
-   
-   console.log(text.charCodeAt(0)); // 55362
-   console.log(text.charCodeAt(1)); // 57271
-   console.log(text.charCodeAt(2)); // 97
-   
-   console.log(text.codePointAt(0)); // 134071
-   console.log(text.codePointAt(1)); // 57271
-   console.log(text.codePointAt(2)); // 97
-   
-   - 对一个字符调用 codePointAt() 方法是判断它所包含代码单元数量的最容易的方法：
-   function is32Bit(c) {
-   	return c.codePointAt(0) > 0xFFFF;
-   }
-   console.log(is32Bit("" )); // true
-   console.log(is32Bit("a")); // false
-   ```
-
-   II. String.fromCodePoint() 方法
-
-   ```javascript
-   - String.fromCodePoint() 使用给定的代码点来产生相应的单个字符
-   
-   console.log(String.fromCodePoint(134071)); // ""
-   ```
-
-   III. normalize() 方法
-
-   ```javascript
-   - Unicode 另一个有趣的方面是，不同的字符在某些排序或比较操作中被认为是相同的。有两种方式可以确立两者之间的关系。
-   	- 第一，规范相等性
-   	- 第二，字符间的兼容性
-   
-   - ECMAScript 6 通过给字符串提供 normalize() 方法来支持 Unicode 规范格式。该方法接收一个字符串参数来获取以下 Unicode 规范格式中的一种并据此运行：
-   	- Normalization Form Canonical Composition ("NFC"), 默认的规范格式
-   	- Normalization Form Canonical Decomposition ("NFD")
-   	- Normalization Form Compatibility Composition ("NFKC")
-   	- Normalization Form Compatibility Decomposition ("NFKD")
-   
-   - 只需记住，当比较字符串时，它们必须被规范成同一种格式
-   var normalized = values.map(function(text) {
-   	return text.normalize();
-   });
-   normalized.sort(function(first, second) {
-       if (first < second) {
-       	return -1;
-       } else if (first === second) {
-       	return 0;
-       } else {
-       	return 1;
-       }
-   });
-   //该段代码讲 values 数组中的字符串转换为一种规范格式以便让元素可以被正确的排序。
-   
-   values.sort(function(first, second) {
-           var firstNormalized = first.normalize(),
-           secondNormalized = second.normalize();
-       
-           if (firstNormalized < secondNormalized) {
-           	return -1;
-           } else if (firstNormalized === secondNormalized) {
-           	return 0;
-           } else {
-           	return 1;
+   function createIterator(items) {
+       var i = 0;
+       return {
+           next: function() {
+               var done = (i >= items.length);
+               var value = !done ? items[i++] : undefined;
+               return {
+                   done: done,
+                   value: value
+               };
            }
+       };
+   }
+   var iterator = createIterator([1, 2, 3]);
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: 3, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   // 之后的所有调用
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   ```
+
+3. 生成器
+
+   ```javascript
+   - 生成器（ generator ）是能返回一个迭代器的函数。
+   - 生成器函数由放在function关键字之后的一个星号（ * ）来表示，并能使用新的yield关键字。将星号紧跟在  function关键字之后，或是在中间留出空格
+   - 生成器函数会在每个yield语句后停止执行。
+   - 生成器函数是 ES6 的一个重要特性，它能被用于所有可使用函数的位置
+   // 生成器
+   function *createIterator() {
+       yield 1;
+       yield 2;
+       yield 3;
+   }
+   // 生成器能像正规函数那样被调用，但会返回一个迭代器
+   let iterator = createIterator();
+   console.log(iterator.next().value); // 1
+   console.log(iterator.next().value); // 2
+   console.log(iterator.next().value); // 3
+   
+   //yield  关键字可用于值或表达式，因此你可以通过生成器给迭代器添加项目，而不是机械式地将项目一个个列出
+   function *createIterator(items) {
+       for (let i = 0; i < items.length; i++) {
+       	yield items[i];
+       }
+   }
+   let iterator = createIterator([1, 2, 3]);
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: 3, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   // 之后的所有调用
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   - yield  关键字只能用在生成器内部，用于其他任意位置都是语法错误，即使在生成器内部嵌套的函数中也不行
+   function *createIterator(items) {
+       items.forEach(function(item) {
+           // 语法错误
+           yield item + 1;
+       });
+   }
+   ```
+
+   I. 生成函数表达式
+
+   ```javascript
+   - 你可以使用函数表达式来创建一个生成器，只要在function关键字与圆括号之间使用一个星号（ * ）
+   - 不能用箭头函数创建生成器
+   let createIterator = function *(items) {
+       for (let i = 0; i < items.length; i++) {
+       	yield items[i];
+       }
+   };
+   let iterator = createIterator([1, 2, 3]);
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: 3, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   // 之后的所有调用
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   ```
+
+   II. 生成器对象方法
+
+   ```javascript
+   - 由于生成器就是函数，因此也可以被添加到对象中
+   //ES5
+   var o = {
+       createIterator: function *(items) {
+           for (let i = 0; i < items.length; i++) {
+           	yield items[i];
+           }
+       }
+   };
+   let iterator = o.createIterator([1, 2, 3]);
+   //ES6
+   var o = {
+       *createIterator(items) {
+           for (let i = 0; i < items.length; i++) {
+           	yield items[i];
+           }
+       }
+   };
+   let iterator = o.createIterator([1, 2, 3]);
+   ```
+
+4. 可迭代对象和for-of循环
+
+   ```javascript
+   - 可迭代对象（ iterable ）是包含 Symbol.iterator属性的对象，与迭代器紧密相关。这个Symbol.iterator 知名符号定义了为指定对象返回迭代器的函数。
+   - 在 ES6 中，所有的集合对象（数组、 Set 与 Map ）、arguments以及字符串都是可迭代对象，因此它们都有默认的迭代器。可迭代对象被设计用于与ES新增的for-of循环配合使用。
+   - 生成器默认会为Symbol.iterator属性赋值，因此它创建的所有迭代器都是可迭代对象
+   
+   //for-of循环在循环每次执行时会调用可迭代对象的next()方法，并将结果对象的value值存储在一个变量上。循环过程会持续到结果对象的done属性变成true为止
+   let values = [1, 2, 3];
+   /for-of循环首先调用了values数组的Symbol.iterator方法，获取了一个迭代器，这个调用由JS引擎在后台进行
+   for (let num of values) {
+   	console.log(num);
+   }
+   ```
+
+   I. 访问默认迭代器
+
+   ```javascript
+   - 可以使用Symbol.iterator来访问对象上的默认迭代器
+   
+   let values = [1, 2, 3];
+   let iterator = values[Symbol.iterator]();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: 3, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   //for-of 循环在执行之前会做类似的检查
+   function isIterable(object) {
+   	return typeof object[Symbol.iterator] === "function";
+   }
+   console.log(isIterable([1, 2, 3])); // true
+   console.log(isIterable("Hello")); // true
+   console.log(isIterable(new Map())); // true
+   console.log(isIterable(new Set())); // true
+   console.log(isIterable(new WeakMap())); // false
+   console.log(isIterable(new WeakSet())); // false
+   ```
+
+   II. 创建可迭代对象
+
+   ```javascript
+   - 自定义对象默认情况下不是可迭代对象，但可以创建一个包含生成器的Symbol.iterator属性，将它们变成可迭代对象
+   let collection = {
+       items: [],
+       *[Symbol.iterator]() {
+           for (let item of this.items) {
+           	yield item;
+           }
+       }
+   };
+   collection.items.push(1);
+   collection.items.push(2);
+   collection.items.push(3);
+   for (let x of collection) {
+   console.log(x);
+   }
+   ```
+
+5. 内置迭代器
+
+   I. 集合迭代器
+
+   ```javascript
+   - ES6 具有三种集合对象类型：数组、 Map 与 Set 。它们都拥有如下的迭代器，便于探索其内容：
+   	- entries()  ：返回一个包含键值对的迭代器；
+   	- values()  ：返回一个包含集合中的值的迭代器；
+   	- keys()  ：返回一个包含集合中的键的迭代器。
+   
+   - entries迭代器
+   	- ntries()  迭代器会在每次  next()  被调用时返回一个双项数组，表示集合中每个元素的键与值：对于数组来说，第一项是数值索引；而对于 Set ，第一项既是键又是值； Map 的第一项也是键
+   	let colors = [ "red", "green", "blue" ];
+       let tracking = new Set([1234, 5678, 9012]);
+       let data = new Map();
+       data.set("title", "Understanding ES6");
+       data.set("format", "ebook");
+       for (let entry of colors.entries()) {
+       	console.log(entry);
+       }
+       for (let entry of tracking.entries()) {
+       	console.log(entry);
+       }
+       for (let entry of data.entries()) {
+       	console.log(entry);
+       }
+   
+       // [0, "red"]
+       // [1, "green"]
+       // [2, "blue"]
+       // [1234, 1234]
+       // [5678, 5678]
+       // [9012, 9012]
+       // ["title", "Understanding ES6"]
+       // ["format", "ebook"]
+   
+   - values迭代器
+   	- values()  迭代器仅仅能返回存储在集合内的值
+   	let colors = [ "red", "green", "blue" ];
+       let tracking = new Set([1234, 5678, 9012]);
+       let data = new Map();
+       data.set("title", "Understanding ES6");
+       data.set("format", "ebook");
+       for (let value of colors.values()) {
+       	console.log(value);
+       }
+       for (let value of tracking.values()) {
+       	console.log(value);
+       }
+       for (let value of data.values()) {
+       	console.log(value);
+       }
+   	// "red"
+   	// "green"
+   	// "blue"
+   	// 1234
+   	// 5678
+   	// 9012
+   	// "Understanding ES6"
+   	// "ebook"
+   
+   - keys迭代器
+   	- keys()  迭代器能返回集合中的每一个键。
+   		- 对于数组来说，它只返回了数值类型的键，永不返回数组的其他自有属性； 
+   		- Set 的键与值是相同的，因此它的  keys()  与  values()  会返回相同的迭代器；
+            - 对于 Map ，keys()  迭代器返回了每个不重复的键
+       let colors = [ "red", "green", "blue" ];
+       let tracking = new Set([1234, 5678, 9012]);
+       let data = new Map();
+       data.set("title", "Understanding ES6");
+       data.set("format", "ebook");
+       for (let key of colors.keys()) {
+       	console.log(key);
+       }
+       for (let key of tracking.keys()) {
+       	console.log(key);
+       }
+       for (let key of data.keys()) {
+       	console.log(key);
+       }
+   
+   - 当  for-of  循环没有显式指定迭代器时，每种集合类型都有一个默认的迭代器供循环使用。
+   	- values()  方法是数组与 Set 的默认迭代器
+   	- entries()  方法则是 Map 的默认迭代器
+   
+   - Map 默认迭代器的行为有助于在  for-of  循环中使用解构
+   let data = new Map();
+   data.set("title", "Understanding ES6");
+   data.set("format", "ebook");
+   // 与使用 data.entries() 相同
+   for (let [key, value] of data) {
+   	console.log(key + "=" + value);
+   }
+   ```
+
+   II. 字符串迭代器
+
+   ```javascript
+   - ES5标准化了字符串的方括号表示法，用于访问其中的字符。不过方括号表示法工作在码元而非字符上，因此它不能被用于正确访问双码元的字符
+   //字符串包含一个Unicode 字符
+   var message = "A B" ;
+   for (let i=0; i < message.length; i++) {
+   	console.log(message[i]);
+   }
+   // A
+   // (blank) //(blank)  代表空行
+   // (blank)
+   // (blank)
+   // (blank)
+   // B
+   
+   - 字符串的默认迭代器正是用于解决字符串迭代问题，借助它就能处理字符而不是码元
+   var message = "A B" ;
+   for (let c of message) {
+   	console.log(c);
+   }
+   // A
+   // (blank)
+   // 
+   // (blank)
+   // B
+   ```
+
+   III. NodeList迭代器
+
+   ```javascript
+   - 文档对象模型（ DOM ）具有一种NodeList类型，用于表示页面文档中元素的集合
+   - 随着默认迭代器被加入 ES6 ，DOM关于NodeList的规定也包含了一个默认迭代器（此规定在 HTML 规范而非 ES6 规范中），其表现方式与数组的默认迭代器一致
+   var divs = document.getElementsByTagName("div");
+   for (let div of divs) {
+   	console.log(div.id);
+   }
+   ```
+
+   IV. 扩展运算符与非数组的可迭代对象
+
+   ```javascript
+   - 扩展运算符能作用于所有可迭代对象，并且会使用默认迭代器来判断需要使用哪些值。所有的值都从迭代器中被读取出来，并按返回值的顺序插入数组
+   
+   let set = new Set([1, 2, 3, 3, 3, 4, 5]),
+       array = [...set];
+   console.log(array); // [1,2,3,4,5]
+   
+   let map = new Map([ ["name", "Nicholas"], ["age", 25]]),
+       array = [...map];
+   console.log(array); // [ ["name", "Nicholas"], ["age", 25]]
+   
+   - 你能不限次数地在数组字面量中使用扩展运算符，而且可以在任意位置用扩展运算符将可迭代对象的多个项插入数组，按扩展运算符所在的位置插入新数组，
+   
+   let smallNumbers = [1, 2, 3],
+       bigNumbers = [100, 101, 102],
+       allNumbers = [0, ...smallNumbers, ...bigNumbers];
+   console.log(allNumbers.length); // 7
+   console.log(allNumbers); // [0, 1, 2, 3, 100, 101, 102]
+   ```
+
+6. 迭代器高级功能
+
+   I. 传递参数给迭代器
+
+   ```javascript
+   - 能通过next()方法向迭代器内传递参数。当一个参数被传递给next()方法时，该参数就会成为生成器内部yield语句的值
+   
+   function *createIterator() {
+       let first = yield 1;
+       let second = yield first + 2; // 4 + 2
+       yield second + 3; // 5 + 3
+   }
+   let iterator = createIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next(4)); // "{ value: 6, done: false }"
+   console.log(iterator.next(5)); // "{ value: 8, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   - 对于next()的首次调用是一个特殊情况，传给它的任意参数都会被忽略。由于传递给next()的参数会成为yield语句的值，则首次调用给 next() 提供的参数就只会替换生成器函数中的第一个 yield 语句；但若要在生成器内部使用该值，又要求它在此 yield 语句之前就必须能被访问到，而这是不可能的。因此在首次调用 next() 时传递参数是没有意义的
+   ```
+
+   > ![generator内部代码执行](/src/img/generator-param.jpg)
+   >
+   > - 黄色表示对于  next()  的第一次调用、以及在生成器内部执行的代码；
+   > - 水蓝色表示了对
+   >   next(4)  的调用以及随之执行的代码；
+   > - 紫色则表示对  next(5)  的调用以及随之执行的代
+   >   码。
+   > - 其中难点在于：在左侧代码执行之前，右侧的各个表达式是如何执行与停止的。这使得
+   >   调试错综复杂的生成器要比调试正规函数更麻烦一些
+
+   II. 在迭代器中抛出错误
+
+   ````javascript
+   - 能传递给迭代器的不仅是数据，还可以是错误条件。
+   - 迭代器可以使用一个 throw() 方法，让迭代器在恢复执行时抛出一个错误
+   - 既能模仿返回一个值，又能模仿抛出错误（这也就是退出函数的两种方式）
+   
+   function *createIterator() {
+       let first = yield 1;
+       let second = yield first + 2; // yield 4 + 2 ，然后抛出错误
+       yield second + 3; // 永不会被执行
+   }
+   let iterator = createIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next(4)); // "{ value: 6, done: false }"
+   console.log(iterator.throw(new Error("Boom"))); // 从生成器中抛出了错误
+   ````
+
+   > ![generator-error](/src/img/generator-error.jpg)
+   >
+   > 在此示意图中，红色表示当  throw()  被调用时所执行的代码，红星说明了错误在生成器内部
+   > 大约何时被抛出。前两个  yield  语句被执行之后，当调用  throw()  时，在任何其他代码执
+   > 行之前错误就被抛出了
+
+   ```javascript
+   function *createIterator() {
+       let first = yield 1;
+       let second;
+       try {
+       	second = yield first + 2; // yield 4 + 2 ，然后抛出错误
+       } catch (ex) {
+       	second = 6; // 当出错时，给变量另外赋值
+       }
+       yield second + 3;
+   }
+   let iterator = createIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next(4)); // "{ value: 6, done: false }"
+   console.log(iterator.throw(new Error("Boom"))); // "{ value: 9, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   ```
+
+   III. 生成器的return语句
+
+   ```javascript
+   - 由于生成器是函数，你可以在它内部使用 return 语句，既可以让生成器早一点退出执行，也可以指定在 next() 方法最后一次调用时的返回值
+   - 在生成器内return表明所有的处理已完成，因此done属性会被设为true，而如果提供了返回值，就会被用于value字段
+   function *createIterator() {
+       yield 1;
+       return;
+       yield 2;
+       yield 3;
+   }
+   let iterator = createIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   function *createIterator() {
+       yield 1;
+       return 42;
+   }
+   let iterator = createIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 42, done: true }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   - 扩展运算符与for-of循环会忽略return语句所指定的任意值。一旦它们看到done的值为true，它们就会停止操作而不会读取对应的value值。不过，在生成器进行委托时，迭代器的返回值会非常有用
+   ```
+
+   IV. 生成器委托
+
+   ```javascript
+   - 如果在 Generator 函数内部，调用另一个 Generator 函数，默认情况下是没有效果的。
+   -  yield* 表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数。
+   - 在某些情况下，将两个迭代器的值合并在一起会更有用。生成器可以用星号（ * ）配合yield这一特殊形式来委托其他的迭代器
+   
+   function *createNumberIterator() {
+       yield 1;
+       yield 2;
+   }
+   function *createColorIterator() {
+       yield "red";
+       yield "green";
+   }
+   function *createCombinedIterator() {
+       yield *createNumberIterator();
+       yield *createColorIterator();
+       yield true;
+   }
+   var iterator = createCombinedIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: "red", done: false }"
+   console.log(iterator.next()); // "{ value: "green", done: false }"
+   console.log(iterator.next()); // "{ value: true, done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   //此处createCombinedIterator()生成器委托了 createNumberIterator() 并将它的返回值赋值给了result变量。由于createNumberIterator()包含return 3语句，该返回值就是3。result变量接下来会作为参数传递给  createRepeatingIterator()  生成器，指示同一个字符串需要被重复几次（
+   function *createNumberIterator() {
+       yield 1;
+       yield 2;
+       return 3;
+   }
+   function *createRepeatingIterator(count) {
+       for (let i=0; i < count; i++) {
+       	yield "repeat";
+       }
+   }
+   function *createCombinedIterator() {
+       let result = yield *createNumberIterator();
+       yield *createRepeatingIterator(result);
+   }
+   var iterator = createCombinedIterator();
+   console.log(iterator.next()); // "{ value: 1, done: false }"
+   console.log(iterator.next()); // "{ value: 2, done: false }"
+   console.log(iterator.next()); // "{ value: "repeat", done: false }"
+   console.log(iterator.next()); // "{ value: "repeat", done: false }"
+   console.log(iterator.next()); // "{ value: "repeat", done: false }"
+   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   
+   - yield* 后面的 Generator 函数（没有 return 语句时），等同于在 Generator 函数内部，部署一个 for...of 循环。
+   function* concat(iter1, iter2) {
+       yield* iter1;
+       yield* iter2;
+   }
+   // 等同于
+   function* concat(iter1, iter2) {
+       for (var value of iter1) {
+       	yield value;
+       }
+       for (var value of iter2) {
+       	yield value;
+       }
+   }
+   ```
+
+7. 异步任务运行
+
+   I. 一个简单的任务运行器
+
+   ```javascript
+   - 由于yield能停止运行，并在重新开始运行前等待next()方法被调用，你就可以在没有回调函数的情况下实现异步调用
+   
+   function run(taskDef) {
+       // 创建迭代器，让它在别处可用
+       let task = taskDef();
+       // 启动任务
+       let result = task.next();
+       // 递归使用函数来保持对 next() 的调用
+       function step() {
+           // 如果还有更多要做的
+           if (!result.done) {
+               result = task.next();
+               step();
+           }
+       }
+       // 开始处理过程
+       step();
+   }
+   
+   run(function*() {
+       console.log(1);
+       yield;
+       console.log(2);
+       yield;
+       console.log(3);
+   });
+   ```
+
+   II. 带数据的任务运行
+
+   ```javascript
+   function run(taskDef) {
+       // 创建迭代器，让它在别处可用
+       let task = taskDef();
+       // 启动任务
+       let result = task.next();
+       // 递归使用函数来保持对 next() 的调用
+       function step() {
+           // 如果还有更多要做的
+           if (!result.done) {
+               result = task.next(result.value);
+               step();
+           }}
+       // 开始处理过程
+       step();
+   }
+   
+   run(function*() {
+       let value = yield 1;
+       console.log(value); // 1
+       value = yield value + 3;
+       console.log(value); // 4
+   });
+   ```
+
+   III. 异步任务运行器
+
+   ```javascript
+   function run(taskDef) {
+       // 创建迭代器，让它在别处可用
+       let task = taskDef();
+       // 启动任务
+       let result = task.next();
+       // 递归使用函数来保持对 next() 的调用
+       function step() {
+           // 如果还有更多要做的
+           if (!result.done) {
+               if (typeof result.value === "function") {
+                   result.value(function(err, data) {
+                       if (err) {
+                           result = task.throw(err);
+                           return;
+                       }
+                       result = task.next(data);
+                       step();
+               	});
+               } else {
+                   result = task.next(result.value);
+                   step();
+               }
+           }
+       }
+       // 开始处理过程
+       step();
+   }
+   
+   let fs = require("fs");
+   function readFile(filename) {
+       return function(callback) {
+       	fs.readFile(filename, callback);
+       };
+   }
+   
+   run(function*() {
+       let contents = yield readFile("config.json");
+       doSomethingWith(contents);
+       console.log("Done");
    });
    
-   values.sort(function(first, second) {
-       var firstNormalized = first.normalize("NFD"),
-       secondNormalized = second.normalize("NFD");
-       if (firstNormalized < secondNormalized) {
-       	return -1;
-       } else if (firstNormalized === secondNormalized) {
-       	return 0;
-       } else {
-       	return 1;
+   //吃橘子过程的异步模拟
+    	function washHand(){
+           console.log('洗手中');
+           setTimeout(function(){
+             i.next('洗完手');
+           },2000);
+         }
+         function pealOrange(data){
+           console.log(data + ', 剥桔子中');
+           setTimeout(function(){
+             i.next('剥好的橘子');          
+           },3000);
+         }
+         function eat(data){
+           console.log(`拿着${data}吃起来`);
+           setTimeout(function(){
+             console.log('吃完了橘子，感叹好吃');       
+           },2000);
+         }
+   
+         function *eatOrange(){
+           let result = yield washHand();
+           result = yield pealOrange(result);
+           yield eat(result);
+         }
+   
+         var i = eatOrange();
+         i.next();
+   ```
+
+---
+
+##### JS中的类
+
+1. ES中的仿类结构
+
+   ```javascript
+   function PersonType(name) {
+   	this.name = name;
+   }
+   PersonType.prototype.sayName = function() {
+   	console.log(this.name);
+   };
+   let person = new PersonType("Nicholas");
+   person.sayName(); // 输出 "Nicholas"
+   console.log(person instanceof PersonType); // true
+   console.log(person instanceof Object); // true
+   ```
+
+2. 类的声明
+
+   I. 基本的类声明
+
+   ```javascript
+   - 类声明以class关键字开始，其后是类的名称；
+   - 剩余部分的语法看起来就像对象字面量中的方法简写，并且在方法之间不需要使用逗号
+   
+   class PersonClass {
+       // 等价于 PersonType 构造器
+       constructor(name) {
+       	this.name = name;
+   	}
+       // 等价于 PersonType.prototype.sayName
+       sayName() {
+       	console.log(this.name);
+       }
+   }
+   let person = new PersonClass("Nicholas");
+   person.sayName(); // 输出 "Nicholas"
+   console.log(person instanceof PersonClass); // true
+   console.log(person instanceof Object); // true
+   console.log(typeof PersonClass); // "function"
+   console.log(typeof PersonClass.prototype.sayName); // "function"
+   ```
+
+   II. 为何要使用类语法
+
+   ```javascript
+   - 尽管类与自定义类型之间有相似性，但仍然要记住一些重要的区别：
+   	- 类声明不会被提升，这与函数定义不同。类声明的行为与 let相似，因此在程序执行到声明处之前，类都会位于暂时性死区内。
+   	- 类声明中的所有代码会自动运行并锁定在严格模式下。
+   	- 类的所有方法都是不可枚举的，这是对于自定义类型的显著变化，后者必须用Object.defineProperty()  才能将方法改变为不可枚举。
+   	- 类的所有方法内部都没有  [[Construct]]  ，因此使用 new 来调用它们会抛出错误。
+   	- 调用类构造器时不使用 new ，会抛出错误。
+   	- 试图在类的方法内部重写类名，会抛出错误。
+   
+   // 直接等价于 PersonClass
+   let PersonType2 = (function() {
+       "use strict";
+       const PersonType2 = function(name) {
+           // 确认函数被调用时使用了 new
+           if (typeof new.target === "undefined") {
+           	throw new Error("Constructor must be called with new.");
+           }
+           this.name = name;
+       }
+       Object.defineProperty(PersonType2.prototype, "sayName", {
+           value: function() {
+               // 确认函数被调用时没有使用 new
+               if (typeof new.target !== "undefined") {
+               	throw new Error("Method cannot be called with new.");
+               }
+               console.log(this.name);
+           },
+           enumerable: false,
+           writable: true,
+           configurable: true
+       });
+       return PersonType2;
+   }());
+   -注意这里有两个 PersonType2 声明：一个在外部作用域的let 声明，一个在 IIFE 内部的const声明。这说明了为何类名不能在类的方法内被重写，而允许在外部重写
+   ```
+
+3. 类表达式
+
+   ​    类与函数相似之处在于都有两种形式：声明与表达式。函数声明与类声明都以适当的关键词
+   为起始（分别是  function  与  class  ），随后是标识符（即函数名或类名）
+
+   I. 基本的类表达式
+
+   ```javascript
+   // 类声明与类表达式都不会被提升
+   let PersonClass = class {
+       // 等价于 PersonType 构造器
+       constructor(name) {
+       this.name = name;
+   }
+       // 等价于 PersonType.prototype.sayName
+       sayName() {
+       	console.log(this.name);
+       }
+   };
+   let person = new PersonClass("Nicholas");
+   person.sayName(); // 输出 "Nicholas"
+   console.log(person instanceof PersonClass); // true
+   console.log(person instanceof Object); // true
+   console.log(typeof PersonClass); // "function"
+   console.log(typeof PersonClass.prototype.sayName); // "function"
+   ```
+
+   II. 具名类表达式
+
+   ```javascript
+   let PersonClass = class PersonClass2 {
+       // 等价于 PersonType 构造器
+       constructor(name) {
+       	this.name = name;
+       }
+       // 等价于 PersonType.prototype.sayName
+       sayName() {
+       	console.log(this.name);
+       }
+   };
+   console.log(typeof PersonClass); // "function"
+   console.log(typeof PersonClass2); // "undefined"
+   
+   - 此例中的类表达式被命名为 PersonClass2 。 PersonClass2 标识符只在类定义内部存在，因此只能用在类方法内部（例如本例的  sayName()  内）。在类的外部，typeof PersonClass2 的结果为 "undefined" ，这是因为外部不存在 PersonClass2 绑定
+   ```
+
+4. 作为一等公民的类
+
+   ```javascript
+   - 能被当作值来使用的就称为一等公民（ first-class citizen ），意味着它能作为参数传给函数、能作为函数返回值、能用来给变量赋值。 JS 的函数就是一等公民（它们有时又被称为一等函数）
+   - ES6 延续了传统，让类同样成为一等公民
+   
+   function createObject(classDef) {
+   	return new classDef();
+   }
+   let obj = createObject(class {
+       sayHi() {
+       	console.log("Hi!");
        }
    });
-   ```
-
-2. 字符串的其他改进
-
-   I. 确认子字符串的方法
-
-   ```javascript
-   - includes() 方法会在给定文本存在于字符串中的任意位置时返回 true，否则返回 false 。
-   - startsWith() 方法会在给定文本出现在字符串开头时返回 true，否则返回 false 。
-   - endsWith() 方法会在给定文本出现在字符串末尾时返回 true，否则返回 false 。
+   obj.sayHi(); // "Hi!"
    
-   - 每个方法都接收两个参数：需要搜索的文本和可选的起始索引值。
-   - 当提供第二个参数后，includes() 和 startsWith() 会以该索引为起始点进行匹配，而 endsWith() 将字符串的长度与参数值相减并将得到的值作为检索的起始点。
-   - 若第二个参数未提供，includes() 和 startsWith()会从字符串的起始中开始检索，endsWith() 则是从字符串的末尾。
+   //类表达式的另一个有趣用途是立即调用类构造器，用于创建单例（ Singleton ）
+   let person = new class {
+       constructor(name) {
+       	this.name = name;
+       }
+       sayName() {
+       	console.log(this.name);
+       }
+   }("Nicholas");
+   person.sayName(); // "Nicholas"
    ```
 
-   II. repeat()方法
+5. 访问器属性 
 
    ```javascript
-   - repeat() 方法，它接受一个数字参数作为字符串的重复次数。该方法返回一个重复包含初始字符串的新字符串，重复次数等于参数
-   console.log("x".repeat(3)); // "xxx"
-   console.log("hello".repeat(2)); // "hellohello"
-   console.log("abc".repeat(4)); // "abcabcabcabc"
-   ```
-
-3. 正则表达式的改进
-
-   I. 正则表达式副本
-
-   ```javascript
-   var re1 = /ab/i,
-   // ES6 中尚可，但是在 ES5 中会抛出错误
-   re2 = new RegExp(re1, "g");
-   console.log(re1.toString()); // "/ab/i"
-   console.log(re2.toString()); // "/ab/g"
-   console.log(re1.test("ab")); // true
-   console.log(re2.test("ab")); // true
-   console.log(re1.test("AB")); // true
-   console.log(re2.test("AB")); // false
-   ```
-
-   II. 标志位属性
-
-   ```javascript
-   - 在 ECMAScript 5 中，你可以使用 source 属性来获得正则表达式中的文本，不过你若想获得字符串表示的标志位，则需要像下面这样解析 toString() 方法输出的内容：
-   function getFlags(re) {
-   var text = re.toString();
-   	return text.substring(text.lastIndexOf("/") + 1, text.length);
+   - 自有属性需要在类构造器中创建，而类还允许你在原型上定义访问器属性。为了创建一个etter ，要使用 get 关键字，并要与后方标识符之间留出空格；创建 setter 用相同方式，只是要改用  set  关键字
+   
+   class CustomHTMLElement {
+       constructor(element) {
+       	this.element = element;
+       }
+       get html() {
+       	return this.element.innerHTML;
+       }
+       set html(value) {
+       	this.element.innerHTML = value;
+       }
    }
-   // toString() 输出 "/ab/g"
-   var re = /ab/g;
-   console.log(getFlags(re)); // "g"
+   var descriptor = Object.getOwnPropertyDescriptor(CustomHTMLElement.prototype, "html");
+   console.log("get" in descriptor); // true
+   console.log("set" in descriptor); // true
+   console.log(descriptor.enumerable); // false
+   
+   // 直接等价于上个范例
+   let CustomHTMLElement = (function() {
+       "use strict";
+       const CustomHTMLElement = function(element) {
+           // 确认函数被调用时使用了 new
+           if (typeof new.target === "undefined") {
+           	throw new Error("Constructor must be called with new.");
+           }
+           this.element = element;
+       }
+       Object.defineProperty(CustomHTMLElement.prototype, "html", {
+           enumerable: false,
+           configurable: true,
+           get: function() {
+           	return this.element.innerHTML;
+           },
+           set: function(value) {
+           	this.element.innerHTML = value;
+           }
+       });
+       return CustomHTMLElement;
+   }());
+   ```
+
+6. 可计算的成员名
+
+   ```javascript
+   - 类方法与类访问器属性也都能使用可计算的名称。语法与对象字面量相同，不是使用标识符，而是用方括号来包裹一个表达式
+   
+   let methodName = "sayName";
+   class PersonClass {
+       constructor(name) {
+       	this.name = name;
+       }
+       [methodName]() {
+       	console.log(this.name);
+       }
+   }
+   
+   let me = new PersonClass("Nicholas");
+   me.sayName(); // "Nicholas"
+   
+   let propertyName = "html";
+       class CustomHTMLElement {
+       constructor(element) {
+       	this.element = element;
+       }
+       get [propertyName]() {
+       	return this.element.innerHTML;
+       }
+       set [propertyName](value) {
+       	this.element.innerHTML = value;
+       }
+   }
+   ```
+
+7. 生成器方法
+
+   ```javascript
+   class MyClass {
+       *createIterator() {
+           yield 1;
+           yield 2;
+           yield 3;
+       }
+   }
+   let instance = new MyClass();
+   let iterator = instance.createIterator();
+   
+   class Collection {
+       constructor() {
+       	this.items = [];
+       }
+       *[Symbol.iterator]() {
+       	yield *this.items.values();
+       }
+   }
+   var collection = new Collection();
+   collection.items.push(1);
+   collection.items.push(2);
+   collection.items.push(3);
+   for (let x of collection) {
+   	console.log(x);
+   }
+   // 输出：
+   // 1
+   // 2
+   // 3
+   ```
+
+8. 静态成员
+
+   ```javascript
+   //ES5
+   function PersonType(name) {
+   	this.name = name;
+   }
+   // 静态方法
+   PersonType.create = function(name) {
+   	return new PersonType(name);
+   };
+   // 实例方法
+   PersonType.prototype.sayName = function() {
+   	console.log(this.name);
+   };
+   var person = PersonType.create("Nicholas");
    
    //ES6
-   var re = /ab/g;
-   console.log(re.source); // "ab"
-   console.log(re.flags); // "g"
+   class PersonClass {
+       // 等价于 PersonType 构造器
+       constructor(name) {
+       	this.name = name;
+       }
+       // 等价于 PersonType.prototype.sayName
+       sayName() {
+       	console.log(this.name);
+       }
+       // 等价于 PersonType.create
+       static create(name) {
+       	return new PersonClass(name);
+       }
+   }
+   let person = PersonClass.create("Nicholas");
    ```
 
-4. 模板字面量
+9. 使用派生类进行继承
 
    ```javascript
-   模板字面量是 ECMAScript 6 针对 JavaScript 直到 ECMAScript 5 依然缺失的如下功能的回应：
-   	- 多行字符串：针对多行字符串的形式概念（formal concept）。
-   	- 基本的字符串格式化：将字符串中的变量置换为值的能力。
-   	- 转义 HTML：能将字符串进行转义并使其安全地插入到 HTML 的能力。
-   ```
-
-   I. 基础语法
-
-   ```javascript
-   //模板字面量由反引号（`） 而非一般字符串使用的单或双引号囊括
-   let message = `Hello world!`;
-   console.log(message); // "Hello world!"
-   console.log(typeof message); // "string"
-   console.log(message.length); // 12
-   
-   let message = `\`Hello\` world!`;
-   console.log(message); // "`Hello` world!"
-   console.log(typeof message); // "string"
-   console.log(message.length); // 14
-   ```
-
-   II. 多行字符串
-
-   ```javascript
-   //ES5解决方案
-   var message = "Multiline \
-   			  string";
-   //输出的 message 字符串不包含新行，因为反斜杠被视作续延（continuation）信号
-   console.log(message); // "Multiline string"
-   
-   //该行为被定义为一个 bug 而且许多开发者都建议避免使用这种形式
-   var message = "Multiline \n\
-   				string";
-   console.log(message); // "Multiline
-   					// string"
-   
-   var message = [
-                   "Multiline ",
-                   "string"
-                ].join("\n");
-   let message = "Multiline \n" +
-   				"string";
+   //ES5
+   function Rectangle(length, width) {
+       this.length = length;
+       this.width = width;
+   }
+   Rectangle.prototype.getArea = function() {
+   	return this.length * this.width;
+   };
+   function Square(length) {
+   	Rectangle.call(this, length, length);
+   }
+   Square.prototype = Object.create(Rectangle.prototype, {
+       constructor: {
+           value:Square,
+           enumerable: true,
+           writable: true,
+           configurable: true
+       }
+   });
+   var square = new Square(3);
+   console.log(square.getArea()); // 9
+   console.log(square instanceof Square); // true
+   console.log(square instanceof Rectangle); // true
    
    //ES6
-   let message = `Multiline
-   string`;
-   console.log(message); // "Multiline
-   					// string"
-   console.log(message.length); // 16
+   class Rectangle {
+       constructor(length, width) {
+           this.length = length;
+           this.width = width;
+       }
+       getArea() {
+       	return this.length * this.width;
+       }
+   }
    
-   //反引号中的所有空白符都是字符串的一部分，使用缩进要小心
-   let message = `Multiline
-   				string`;
-   console.log(message); // "Multiline
-   						// string"
-   console.log(message.length); // 31
+   class Square extends Rectangle {
+       constructor(length) {
+           // 与 Rectangle.call(this, length, length) 相同
+           super(length, length);
+       }
+   }
+   var square = new Square(3);
+   console.log(square.getArea()); // 9
+   console.log(square instanceof Square); // true
+   console.log(square instanceof Rectangle); // true
    
-   //请考虑将多行模板字面量的第一行空置并在第二行开始缩进
-   let html = `
-   <div>
-   <h1>Title</h1>
-   </div>`.trim();
+   - 继承了其他类的类被称为派生类（ derived classes ）。
+   - 如果派生类指定了构造器，就需要使用 super() ，否则会造成错误。若你选择不使用构造器，super() 方法会被自动调用并会使用创建新实例时提供的所有参数
+   
+   class Square extends Rectangle {
+   // 没有构造器
+   }
+   // 等价于：
+   class Square extends Rectangle {
+       constructor(...args) {
+       	super(...args);
+       }
+   }
+   
+   - 使用  super()  时需牢记以下几点：
+   	- 只能在派生类中使用 super() 。若尝试在非派生的类（即：没有使用  extends关键字的类）或函数中使用它，就会抛出错误。
+   	- 在构造器中，你必须在访问 this 之前调用 super() 。由于 super() 负责初始化 this ，因此试图先访问 this 自然就会造成错误。
+   	- 若在类的构造器中不调用 super() ，唯一避免出错的办法是在构造器中返回一个对象。
    ```
 
-   III. 字符串置换
+
+
+   I. 屏蔽类方法
 
    ```javascript
-   - 模板字面量看上去像是普通 JavaScript 字符串的升级版。两者之间的真正区别在于前者包含的置换操作
-   - 置换部分由 ${ 和 } 包含，其中可以放入任意 JavaScript 表达式
-   - 模板字面量可以访问作用域中定义的任何变量。若变量未定义，在严格和非严格模式下都会抛出错误
+   - 派生类中的方法总是会屏蔽基类的同名方法
    
-   let name = "Nicholas",
-   message = `Hello, ${name}.`;
-   console.log(message); // "Hello, Nicholas."
+   class Square extends Rectangle {
+       constructor(length) {
+       	super(length, length);
+       }
+       // 重写并屏蔽 Rectangle.prototype.getArea()
+       getArea() {
+       	return this.length * this.length;
+       }
+   }
    
-   let count = 10,
-       price = 0.25,
-   message = `${count} items cost $ ${(count * price).toFixed(2)}.`;
-   console.log(message); // "10 items cost $2.50."
-   
-   let name = "Nicholas",
-       message = `Hello, ${
-   		`my name is ${ name }`
-   	}.`;
-   console.log(message); // "Hello, my name is Nicholas."
+   class Square extends Rectangle {
+       constructor(length) {
+       	super(length, length);
+       }
+       // 重写、屏蔽并调用了 Rectangle.prototype.getArea()
+       getArea() {
+       	return super.getArea();
+       }
+   }
    ```
 
-   IV. 模板标签
+   II. 继承静态成员
 
    ```javascript
-   //模板字面量真正的强大之处来源于模板标签。一个模板标签可以被转换为模板字面量并作为最终值返回。标签在模板的头部，即左 ` 字符之前指定
-   let message = tag`Hello world`;
+   - 如果基类包含静态成员，那么这些静态成员在派生类中也是可用的
    
-   - 一个标签仅代表一个函数，它接收需要处理的模板字面量。
-   - 标签分别接收模板字面量中的片段，且必须将它们组合以得出结果。
-   - 函数的首个参数为包含普通 JavaScript 字符串的数组，余下的参数为每次置换的对应值
-   
-   //标签函数一般使用剩余参数来定义，以便轻松地处理数据
-   function tag(literals, ...substitutions) {
-   	// 返回一个字符串
-   }
-   
-   let count = 10,
-       price = 0.25,
-       message = passthru`${count} items cost $ ${(count * price).toFixed(2)}.`;
-   // 注意：gitbook 解析 markdown 语法时存在一个 bug，在这里 $ $ 实际为 $$
-   - 如果有一个 passthru() 函数，那么它会接收三个参数。
-   	- 首当其冲的是一个 literals 数组，包含如下的元素：
-           - 在首次置换位置之前的空字符串（""）。
-           - 首次置换位置到第二次置换位置之前的字符串（" items cost $ "）。
-           - 第二次置换位置之后的字符串（"."）。
-       - 下个参数为 10，它刚好为 count 变量的值，同时也是 substitutions 数组的首个元素。
-       - 最后的参数为 "2.50"，即 (count * price).toFixed(2) 的计算结果，并作为 substitutions 数组的第二个元素
-   - 注意 literals 的首个元素为空字符串，以保证 literals[0] 总是代表字符串的起始位置，正如
-   literals[literals.length - 1] 涵盖字符串的末尾。同时置换（substitution）元素数目也总是比字面量（literal）元素少 1，意味着表达式 substitutions.length === literals.length - 1 的值总是为 true
-   
-   function passthru(literals, ...substitutions) {
-       let result = "";
-       // 只根据 substitution 的数目来运行循环
-       for (let i = 0; i < substitutions.length; i++) {
-           result += literals[i];
-           result += substitutions[i];
+   class Rectangle {
+       constructor(length, width) {
+           this.length = length;
+           this.width = width;
        }
-       // 添加最后一个 literal
-       result += literals[literals.length - 1];
-       return result;
-   }
-   let count = 10,
-       price = 0.25,
-       message = passthru`${count} items cost $ ${(count * price).toFixed(2)}.`;
-   console.log(message); // "10 items cost $2.50."
-   
-   - 模板标签也可以访问字符串的原始信息，主要是它可以在转义字符生效前访问它，而最简单的方式是使用内置的 String.raw() 标签。如
-   let message1 = `Multiline\nstring`,
-   message2 = String.raw`Multiline\nstring`;
-   console.log(message1); // "Multiline
-   					// string"
-   console.log(message2); // "Multiline\\nstring"
-   
-   function raw(literals, ...substitutions) {
-       let result = "";
-       // 只根据 substitution 的数目来运行循环
-       for (let i = 0; i < substitutions.length; i++) {
-           result += literals.raw[i]; // use raw values instead
-           result += substitutions[i];
+       getArea() {
+       	return this.length * this.width;
        }
-       // 添加最后一个 literal
-       result += literals.raw[literals.length - 1];
-       return result;
+       static create(length, width) {
+       	return new Rectangle(length, width);
+       }
    }
-   let message = raw`Multiline\nstring`;
-   console.log(message); // "Multiline\\nstring"
-   console.log(message.length); // 17
-   //这里并非使用 literals 而是 literals.raw 来输出结果字符串。这意味着包括 Unicode 代码点在内的任何转义字符都会以原始的形式返回。
-   //当你想在输出的字符串中包含转义字符时原始字符串非常好用（例如，如果你想要生成包含代码的文档，那么你期待的是输出实际代码而不是产生的效果）
+   class Square extends Rectangle {
+       constructor(length) {
+           // 与 Rectangle.call(this, length, length) 相同
+           super(length, length);
+       }
+   }
+   var rect = Square.create(3, 4);
+   console.log(rect instanceof Rectangle); // true
+   console.log(rect.getArea()); // 12
+   console.log(rect instanceof Square); // false
    ```
+
+   III. 从表达式中派生类
+
+   ```javascript
+   - 在 ES6 中派生类的最强大能力，或许就是能够从表达式中派生类。只要一个表达式能够返回一个具有 [[Construct]]  属性以及原型的函数，你就可以对其使用 extends
+   
+   - 任意表达式都能在 extends 关键字后使用，但并非所有表达式的结果都是一个有效的类。下列表达式类型就会明确导致错误 
+   	- null ；
+       - 生成器函数。
+   - 试图使用结果为上述值的表达式来创建一个新的类实例，都会抛出错误，因为不存在[[Construct]]  可供调用。
+   
+   //Rectangle 被定义为ES5风格的构造器，而 Square 则是一个类。由于 Rectangle 具有[[Construct]]  以及原型，Square 类就能直接继承它
+   function Rectangle(length, width) {
+       this.length = length;
+       this.width = width;
+   }
+   Rectangle.prototype.getArea = function() {
+       return this.length * this.width;
+   };
+   class Square extends Rectangle {
+       constructor(length) {
+       super(length, length);
+   }
+   }
+   var x = new Square(3);
+   console.log(x.getArea()); // 9
+   console.log(x instanceof Rectangle); // true
+   
+   //extends  后面能接受任意类型的表达式，这带来了巨大可能性
+   function Rectangle(length, width) {
+       this.length = length;
+       this.width = width;
+   }
+   Rectangle.prototype.getArea = function() {
+   	return this.length * this.width;
+   };
+   function getBase() {
+   	return Rectangle;
+   }
+   class Square extends getBase() {
+       constructor(length) {
+       	super(length, length);
+       }
+   }
+   var x = new Square(3);
+   console.log(x.getArea()); // 9
+   console.log(x instanceof Rectangle); // true
+   
+   //例3
+   let SerializableMixin = {
+       serialize() {
+       	return JSON.stringify(this);
+       }
+   };
+   let AreaMixin = {
+       getArea() {
+       	return this.length * this.width;
+       }
+   };
+   function mixin(...mixins) {
+       var base = function() {};
+       Object.assign(base.prototype, ...mixins);
+       return base;
+   }
+   class Square extends mixin(AreaMixin, SerializableMixin) {
+       constructor(length) {
+           super();
+           this.length = length;
+           this.width = length;
+       }
+   }
+   var x = new Square(3);
+   console.log(x.getArea()); // 9
+   console.log(x.serialize()); // "{"length":3,"width":3}"
+   ```
+
+   IV. 继承内置对象
+
+   ```javascript
+   //ES5继承内置对象 
+   // 内置数组的行为
+   var colors = [];
+   colors[0] = "red";
+   console.log(colors.length); // 1
+   colors.length = 0;
+   console.log(colors[0]); // undefined
+   // 在 ES5 中尝试继承数组
+   function MyArray() {
+   	Array.apply(this, arguments);
+   }
+   MyArray.prototype = Object.create(Array.prototype, {
+       constructor: {
+           value: MyArray,
+           writable: true,
+           configurable: true,
+           enumerable: true
+       }
+   });
+   var colors = new MyArray();
+   //MyArray实例上的length属性以及数值属性，其行为与内置数组并不一致，因为这些功能并未被涵盖  Array.apply()或数组原型中
+   colors[0] = "red";
+   console.log(colors.length); // 0
+   colors.length = 0;
+   console.log(colors[0]); // "red"
+   
+   - 在 ES5 的传统继承中， this 的值会先被派生类（例如 MyArray ）创建，随后基类构造器（例如 Array.apply() 方法）才被调用。这意味着 this 一开始就是 MyArray 的实例，之后才使用了  Array  的附加属性对其进行了装饰。
+   - 在 ES6 基于类的继承中， this 的值会先被基类（ Array ）创建，随后才被派生类的构造器（ MyArray ）所修改。结果是 this 初始就拥有作为基类的内置对象的所有功能，并能正确接收与之关联的所有功能。
+   
+   class MyArray extends Array {
+   	// 空代码块
+   }
+   var colors = new MyArray();
+   colors[0] = "red";
+   console.log(colors.length); // 1
+   colors.length = 0;
+   console.log(colors[0]); // undefined
+   ```
+
+   V. Symbol.species属性
+
+   ```javascript
+   - 继承内置对象会带来一个有趣特性，任意能返回内置对象实例的方法，在派生类上却会自动返回派生类的实例。因此，若你拥有一个继承了 Array 的派生类 MyArray
+   
+   class MyArray extends Array {
+   	// 空代码块
+   }
+   let items = new MyArray(1, 2, 3, 4),
+       subitems = items.slice(1, 3);
+   console.log(items instanceof MyArray); // true
+   console.log(subitems instanceof MyArray); // true
+   
+   - Symbol.species 符号被用于定义一个能返回函数的静态访问器属性。每当类实例除了构造器之外的方法必须创建一个实例时，前面返回的函数就被用为新实例的构造器
+   
+   - 下列内置类型都定义了 Symbol.species  ：
+        - Array
+        - ArrayBuffer 
+        - Map
+        - Promise
+        - RegExp
+        - Set
+        - 类型化数组
+	- 以上每个类型都拥有默认的 Symbol.species 属性，其返回值为 this ，意味着该属性总是会返回自身的构造器函数
+    
+    // 几个内置类型使用 species 的方式类似于此
+    class MyClass {
+        static get [Symbol.species]() {
+        	return this;
+        }
+        constructor(value) {
+        	this.value = value;
+        }
+        clone() {
+        	return new this.constructor[Symbol.species](this.value);
+        }
+    }
+
+    class MyDerivedClass1 extends MyClass {
+        // 空代码块
+    }
+    class MyDerivedClass2 extends MyClass {
+        static get [Symbol.species]() {
+        	return MyClass;
+        }
+    }
+    let instance1 = new MyDerivedClass1("foo"),
+        clone1 = instance1.clone(),
+        instance2 = new MyDerivedClass2("bar"),
+        clone2 = instance2.clone();
+    console.log(clone1 instanceof MyClass); // true
+    console.log(clone1 instanceof MyDerivedClass1); // true
+    console.log(clone2 instanceof MyClass); // true
+    console.log(clone2 instanceof MyDerivedClass2); // false
+
+	- 一般而言，每当想在类方法中使用 this.constructor 时，你就应当使用 Symbol.species 属性。这么做允许派生类轻易地重写方法的返回类型。此外，若你从一个拥有 Symbol.species 定义的类创建了派生类，要保证使用此属性，而不是直接使用构造器
+   ```
+
+VI. 在类构造器中使用new.target
+
+```javascript
+- 可以在类构造器中使用 new.target ，来判断类是被如何被调用的
+- 由于调用类时不能缺少 new ，于是 new.target 属性在类构造器内部就绝不会是 undefined
+
+class Rectangle {
+    constructor(length, width) {
+        console.log(new.target === Rectangle);
+        this.length = length;
+        this.width = width;
+    }
+}
+// new.target 就是 Rectangle
+var obj = new Rectangle(3, 4); // 输出 true
+
+class Rectangle {
+    constructor(length, width) {
+        console.log(new.target === Rectangle);
+        this.length = length;
+        this.width = width;
+    }
+}
+class Square extends Rectangle {
+    constructor(length) {
+    	super(length, length)
+    }
+}
+// new.target 就是 Square
+//Square 调用了 Rectangle 构造器，因此当 Rectangle 构造器被调用时， new.target 等于 Square 。这很重要，因为这让构造器能根据如何被调用而更改其行为
+var obj = new Square(3); // 输出 false
+
+// 静态的基类
+class Shape {
+    constructor() {
+        if (new.target === Shape) {
+        	throw new Error("This class cannot be instantiated directly.")
+        }
+    }
+}
+class Rectangle extends Shape {
+    constructor(length, width) {
+        super();
+        this.length = length;
+        this.width = width;
+    }
+}
+var x = new Shape(); // 抛出错误
+var y = new Rectangle(3, 4); // 没有错误
+console.log(y instanceof Shape); // true
+```
+
+---
 
 ##### 数组扩展
 
@@ -2352,624 +3997,881 @@ a[6](); // 6
            console.log(subints3.toString()); // 50,75
    ```
 
-##### 迭代器与生成器
+---
 
-1. 循环的问题
+##### Promise
+
+1. 异步编程的背景
+
+   I. 事件模型
 
    ```javascript
-   - for循环非常直观，然而若它被嵌套使用而要追踪多个变量时，复杂度就会提高，由此也更容易引发错误。相似的 
-   - for循环代码会被写在多个地方，一不小心就会写错循环变量。迭代器正是用来解决此问题的
+   - 当用户点击一个按钮或按下键盘上的一个键时，一个事件（ event ）——例如 onclick ——就被触发了。该事件可能会对此交互进行响应，从而将一个新的作业添加到作业队列的尾部。这就是 JS 关于异步编程的最基本形式。事件处理程序代码直到事件发生后才会被执行，此时它会拥有合适的上下文
+   
+   let button = document.getElementById("my-btn");
+   //当 button 被点击，赋值给 onclick 的函数就被添加到作业队列的尾部，并在队列前部所有任务结束之后再执行
+   button.onclick = function(event) {
+   	console.log("Clicked");
+   };
+   
+   - 事件可以很好地工作于简单的交互，但将多个分离的异步调用串联在一起却会很麻烦，因为必须追踪每个事件的事件对象（例如上例中的 button ）。
+   - 还需确保所有的事件处理程序都能在事件第一次触发之前被绑定完毕。例如，若  button  在  onclick  被绑定之前就被点击，那就不会有任何事发生。
+   - 虽然在响应用户交互或类似的低频功能时，事件很有用，但它在面对更复杂的需求时仍然不够灵活。
    ```
 
-2. 迭代器
+   II. 回调模式
 
    ```javascript
-   - 迭代器是被专用设计用于迭代的对象，带有特定接口。
-   - 所有的迭代器对象都拥有  next()  方法，调用时会返回一个结果对象。
-   	- 结果对象有两个属性：对应下一个值的  value  ，以及一个布尔类型的  done  ，其值为  true  时表示没有更多值可供使用
-   - 迭代器持有一个指向集合位置的内部指针，每当调用了  next()  方法，迭代器就会返回相应的下一个值。
+   - 当 Node.js 被创建后，它通过普及回调函数编程模式提升了异步编程模型。
+   - 回调函数模式类似于事件模型，因为异步代码也会在未来的时间点才执行。
+   - 不同之处在于需要调用的函数（即回调函数）是作为参数传入的
    
-   function createIterator(items) {
-       var i = 0;
-       return {
-           next: function() {
-               var done = (i >= items.length);
-               var value = !done ? items[i++] : undefined;
-               return {
-                   done: done,
-                   value: value
-               };
-           }
-       };
-   }
-   var iterator = createIterator([1, 2, 3]);
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: 3, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   // 之后的所有调用
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   ```
-
-3. 生成器
-
-   ```javascript
-   - 生成器（ generator ）是能返回一个迭代器的函数。
-   - 生成器函数由放在function关键字之后的一个星号（  *  ）来表示，并能使用新的  yield  关键字。将星号紧跟在  function关键字之后，或是在中间留出空格
-   - 生成器函数会在每个  yield  语句后停止执行。
-   - 生成器函数是 ES6 的一个重要特性，它能被用于所有可使用函数的位置
-   // 生成器
-   function *createIterator() {
-       yield 1;
-       yield 2;
-       yield 3;
-   }
-   // 生成器能像正规函数那样被调用，但会返回一个迭代器
-   let iterator = createIterator();
-   console.log(iterator.next().value); // 1
-   console.log(iterator.next().value); // 2
-   console.log(iterator.next().value); // 3
-   
-   //yield  关键字可用于值或表达式，因此你可以通过生成器给迭代器添加项目，而不是机械式地将项目一个个列出
-   function *createIterator(items) {
-       for (let i = 0; i < items.length; i++) {
-       	yield items[i];
+   //使用回调函数模式，readFile() 会立即开始执行，并在开始读取磁盘时暂停。这意味着console.log("Hi!")  会在  readFile() 被调用后立即进行输出，要早于console.log(contents)  的打印操作。当  readFile()  结束操作后，它会将回调函数以及相关参数作为一个新的作业添加到作业队列的尾部。在之前的作业全部结束后，该作业才会执行
+   readFile("example.txt", function(err, contents) {
+       if (err) {
+       	throw err;
        }
-   }
-   let iterator = createIterator([1, 2, 3]);
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: 3, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   // 之后的所有调用
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+       console.log(contents);
+   });
+   console.log("Hi!");
    
-   - yield  关键字只能用在生成器内部，用于其他任意位置都是语法错误，即使在生成器内部嵌套的函数中也不行
-   function *createIterator(items) {
-       items.forEach(function(item) {
-           // 语法错误
-           yield item + 1;
+   - 回调函数模式要比事件模型灵活得多，因为使用回调函数串联多个调用会相对容易
+   
+   - 回调模式运作得相当好，但当嵌套过多回调函数时，你可能会迅速察觉陷入了回调地狱（callback hell）
+   ```
+
+2. Promise基础
+
+   ```javascript
+   - Promise 是为异步操作的结果所准备的占位符。函数可以返回一个 Promise，而不必订阅一个事件或向函数传递一个回调参数
+   
+   // readFile 承诺会在将来某个时间点完成
+   let promise = readFile("example.txt");
+   //在此代码中， readFile() 实际上并未立即开始读取文件，这将会在稍后发生。此函数会返回一个 Promise 对象以表示异步读取操作，因此你可以在将来再操作它。你能对结果进行操作的确切时刻，完全取决于 Promise 的生命周期是如何进行的
+   ```
+
+   I. Promise的生命周期
+
+   ```javascript
+   - 每个 Promise 都会经历一个短暂的生命周期，初始为进行态（ pending state），这表示异步操作尚未结束。
+   	- 一个进行中的 Promise 也被认为是未处理的（ unsettled ）。
+       - 一旦异步操作结束， Promise 就会被认为是已处理的（ settled ），并进入两种可能状态之一：
+   		- 已完成（ fulfilled ）： Promise 的异步操作已成功结束；
+   		- 已拒绝（ rejected ）： Promise 的异步操作未成功结束，可能是一个错误，或由其他原因导致
+           
+   - 内部的 [[PromiseState]] 属性会被设置为 "pending"  、"fulfilled" 或 "rejected" ，以反映 Promise 的状态。该属性并未在 Promise 对象上被暴露出来，因此你无法以编程方式判断 Promise 到底处于哪种状态。不过你可以使用 then() 方法在 Promise 的状态改变时执行一些特定操作
+   
+   - then() 方法在所有的 Promise 上都存在，并且接受两个参数。
+   	- 第一个参数是 Promise 被完成时要调用的函数，与异步操作关联的任何附加数据都会被传入这个完成函数。
+       - 第二个参数则是 Promise 被拒绝时要调用的函数，与完成函数相似，拒绝函数会被传入与拒绝相关联的任何附加数据
+       
+   let promise = readFile("example.txt");
+   promise.then(function(contents) {
+       // 完成
+       console.log(contents);
+   }, function(err) {
+       // 拒绝
+       console.error(err.message);
+   });
+   promise.then(function(contents) {
+       // 完成
+       console.log(contents);
+   });
+   promise.then(null, function(err) {
+       // 拒绝
+       console.error(err.message);
+   });
+   
+   promise.catch(function(err) {
+   	// 拒绝
+   	console.error(err.message);
+   });
+   // 等同于：
+   promise.then(null, function(err) {
+   	// 拒绝
+   	console.error(err.message);
+   });
+   
+   - then() 与 catch() 背后的意图是让你组合使用它们来正确处理异步操作的结果。
+   - 这个体系让操作是成功还是失败变得完全清晰，要优于事件与回调函数，
+   		- 事件模式倾向于在出错时不被触发，而在回调函数模式中你必须始终记得检查错误参数。
+   - 关于 Promise 需要牢记的只有：若你未提供拒绝处理函数，所有的错误就会静默发生。建议始终附加一个拒绝处理函
+   数，即使该处理程序只是用于打印错误日志
+   
+   // 即使完成或拒绝处理函数在 Promise 已经被处理之后才添加到作业队列，它们仍然会被执行。这允许你随时添加新的完成或拒绝处理函数，并保证它们会被调用
+   let promise = readFile("example.txt");
+   // 原始的完成处理函数
+   promise.then(function(contents) {
+       console.log(contents);
+       // 现在添加另一个
+       promise.then(function(contents) {
+       	console.log(contents);
+       });
+   });
+   //在此代码中，完成处理函数又为同一个 Promise 添加了另一个完成处理函数。这个 Promise 此刻已经完成了，因此新的处理程序就被添加到任务队列，并在就绪时（前面的作业执行完毕后）被调用。拒绝处理函数使用同样方式工作
+   
+   - 每次调用 then() 或 catch() 都会创建一个新的作业，它会在 Promise 已处理时被执行。但这些作业最终会进入一个完全为 Promise 保留的作业队列
+   ```
+
+   II. 创建未处理的Promise
+
+   ```javascript
+   - 新的 Promise 使用  Promise  构造器来创建。此构造器接受单个参数：一个被称为执行器（ executor ）的函数，包含初始化 Promise 的代码。该执行器会被传递两个名为 resolve() 与 reject() 的函数作为参数。
+   	- resolve() 函数在执行器成功结束时被调用，用于示意该Promise 已经准备好被决议（ resolved ），
+   	- 执行器的操作失败后  reject()  函数则被调用。
+       
+    // Node.js 范例
+   let fs = require("fs");
+   function readFile(filename) {
+       //Node.js 原生的  fs.readFile()  异步调用被包装在一个 Promise 中
+       return new Promise(function(resolve, reject) {
+           // 触发异步操作
+           fs.readFile(filename, { encoding: "utf8" }, function(err, contents) {
+               // 检查错误
+               if (err) {
+                   reject(err);
+                   return;
+               }
+               // 读取成功
+               resolve(contents);
+           });
        });
    }
+   let promise = readFile("example.txt");
+   // 同时监听完成与拒绝
+   promise.then(function(contents) {
+       // 完成
+       console.log(contents);
+   }, function(err) {
+       // 拒绝
+       console.error(err.message);
+   });
+   //执行器会在 readFile() 被调用时立即运行。当 resolve() 或 reject() 在执行器内部被调用时，一个作业被添加到作业队列中，以便处理这个 Promise 。这被称为作业调度（ job scheduling ）
+   
+   let promise = new Promise(function(resolve, reject) {
+       console.log("Promise");
+       resolve();
+   });
+   console.log("Hi!");
+   // Promise
+   // Hi!
+   - 调用 resolve() 触发了一个异步操作。传递给 then() 与 catch() 的函数会异步地被执行，并且它们也被添加到了作业队列（先进队列再执行）
    ```
 
-   I. 生成函数表达式
+   III. 创建已处理的promise
 
    ```javascript
-   - 你可以使用函数表达式来创建一个生成器，只要在function关键字与圆括号之间使用一个星号（  *  ）
-   - 不能用箭头函数创建生成器
-   let createIterator = function *(items) {
-       for (let i = 0; i < items.length; i++) {
-       	yield items[i];
+   - 基于 Promise 执行器行为的动态本质，Promise 构造器就是创建未处理的 Promise 的最好方式。但若你想让一个 Promise 代表一个已知的值，那么安排一个单纯传值给 resolve() 函数的作业并没有意义
+   
+   - Promise.resolve()
+   	- 接受单个参数并会返回一个处于完成态的 Promise 。这意味着没有任何作业调度会发生，并且你需要向 Promise 添加一个或更多的完成处理函数来提取这个参数值
+       - 若传递一个 Promise 给 Promise.resolve() 方法，该 Promise 会不作修改原样返回。
+       let promise = Promise.resolve(42);
+       promise.then(function(value) {
+       	console.log(value); // 42
+       });
+   
+   - Promise.reject()
+   	- Promise.reject() 方法来创建一个已拒绝的 Promise 。此方法像 Promise.resolve() 一样工作，区别是被创建的 Promise 处于拒绝态
+       let promise = Promise.reject(42);
+       promise.catch(function(value) {
+       	console.log(value); // 42
+       });
+   
+   - 非 Promise 的 Thenable
+   	- romise.resolve() 与 Promise.reject() 都能接受非 Promise 的 thenable 作为参数。当传入了非 Promise 的 thenable 时，这些方法会创建一个新的 Promise ，此 Promise 会在 then() 函数之后被调用
+   
+   let thenable = {
+       then: function(resolve, reject) {
+       	resolve(42);
        }
    };
-   let iterator = createIterator([1, 2, 3]);
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: 3, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   // 之后的所有调用
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   let p1 = Promise.resolve(thenable);
+   p1.then(function(value) {
+   	console.log(value); // 42
+   });
+   
+   - 当你不能确定一个对象是否是 Promise 时，将该对象传递给 Promise.resolve() 或 Promise.reject()（取
+   决于你的预期结果）是最佳可行方案
    ```
 
-   II. 生成器对象方法
+   IV. 执行器错误
 
    ```javascript
-   - 由于生成器就是函数，因此也可以被添加到对象中
-   //ES5
-   var o = {
-       createIterator: function *(items) {
-           for (let i = 0; i < items.length; i++) {
-           	yield items[i];
-           }
+   - 如果在执行器内部抛出了错误，那么 Promise 的拒绝处理函数就会被调用
+   
+   let promise = new Promise(function(resolve, reject) {
+   	throw new Error("Explosion!");	
+   });
+   promise.catch(function(error) {
+   console.log(error.message); // "Explosion!"
+   });
+   //等价于
+   let promise = new Promise(function(resolve, reject) {
+       try {
+       	throw new Error("Explosion!");
+       } catch (ex) {
+       	reject(ex);
        }
+   });
+   promise.catch(function(error) {
+   	console.log(error.message); // "Explosion!"
+   });
+   ```
+
+3. 全局Promise拒绝处理
+
+   ```javascript
+   - Promise 最有争议的方面之一就是：当一个 Promise 被拒绝时若缺少拒绝处理函数，就会静默失败。有人认为这是规范中最大的缺陷，因为这是 JS 语言所有组成部分中唯一未使错误清晰可见的。
+   - 由于 Promise 的本质，并不能直观判断一个 Promise 的拒绝是否已被处理。
+   let rejected = Promise.reject(42);
+       // 在此刻 rejected 不会被处理
+       // 一段时间后……
+       rejected.catch(function(value) {
+           // 现在 rejected 已经被处理了
+           console.log(value);
+   });
+   - 无论 Promise 是否已被解决，你都可以在任何时候调用 then() 或 catch() 并使它们正确工作，这导致很难准确知道一个 Promise 何时会被处理。此例中的 Promise 被立刻拒绝，但它后来才被处理
+   ```
+
+   I.  Node.js的拒绝处理
+
+   ```javascript
+   - 在 Node.js 中，process 对象上存在两个关联到 Promise 的拒绝处理的事件：
+   	- unhandledRejection ：当一个 Promise 被拒绝、而在事件循环的一个轮次中没有任何拒绝处理函数被调用，该事件就会被触发；
+   	- rejectionHandled ：若一个 Promise 被拒绝、并在事件循环的一个轮次之后再有拒绝处理函数被调用，该事件就会被触发
+       
+   // unhandledRejection  事件处理函数接受的参数是拒绝原因（常常是一个错误对象）以及已被拒绝的 Promise
+   let rejected;
+   process.on("unhandledRejection", function(reason, promise) {
+           console.log(reason.message); // "Explosion!"
+           console.log(rejected === promise); // true
+   });
+   rejected = Promise.reject(new Error("Explosion!"));
+   
+   //rejectionHandled  事件处理函数则只有一个参数，即已被拒绝的 Promise
+   et rejected;
+   process.on("rejectionHandled", function(promise) {
+   	console.log(rejected === promise); // true
+   });
+   rejected = Promise.reject(new Error("Explosion!"));
+   // 延迟添加拒绝处理函数
+   setTimeout(function() {
+       rejected.catch(function(value) {
+       	console.log(value.message); // "Explosion!"
+       });
+   }, 1000);
+   
+   // 为了正确追踪潜在的未被处理的拒绝，使用  rejectionHandled  与  unhandledRejection  事件就能保持包含这些 Promise 的一个列表，之后等待一段时间再检查此列表
+   let possiblyUnhandledRejections = new Map();
+   // 当一个拒绝未被处理，将其添加到 map
+   process.on("unhandledRejection", function(reason, promise) {
+   	possiblyUnhandledRejections.set(promise, reason);
+   });
+   process.on("rejectionHandled", function(promise) {
+   	possiblyUnhandledRejections.delete(promise);
+   });
+   setInterval(function() {
+       possiblyUnhandledRejections.forEach(function(reason, promise) {
+           console.log(reason.message ? reason.message : reason);
+           // 做点事来处理这些拒绝
+           handleRejection(promise, reason);
+       });
+       possiblyUnhandledRejections.clear();
+   }, 60000);
+   ```
+
+   II. 浏览器的拒绝处理
+
+   ```javascript
+   - 浏览器同样能触发两个事件，来帮助识别未处理的拒绝。这两个事件会被 window 对象触发，并完全等效于Node.js的相关事件：
+   	- unhandledrejection ：当一个 Promise 被拒绝、而在事件循环的一个轮次中没有任何拒绝处理函数被调用，该事件就会被触发；
+   	- rejectionHandled ：若一个 Promise 被拒绝、并在事件循环的一个轮次之后再有拒绝处理函数被调用，该事件就会被触发。    
+       - Node.js 的实现会传递分离的参数给事件处理函数，而浏览器事件的处理函数则只会接收到包含下列属性的一个对象：
+   		- type ：事件的名称（  "unhandledrejection"  或  "rejectionhandled"  ）；
+   		- promise ：被拒绝的 Promise 对象；
+   		- reason ：Promise 中的拒绝值（拒绝原因
+           
+   let rejected;
+   window.onunhandledrejection = function(event) {
+       console.log(event.type); // "unhandledrejection"
+       console.log(event.reason.message); // "Explosion!"
+       console.log(rejected === event.promise); // true
    };
-   let iterator = o.createIterator([1, 2, 3]);
-   //ES6
-   var o = {
-       *createIterator(items) {
-           for (let i = 0; i < items.length; i++) {
-           	yield items[i];
-           }
-       }
+   window.onrejectionhandled = function(event) {
+       console.log(event.type); // "rejectionhandled"
+       console.log(event.reason.message); // "Explosion!"
+       console.log(rejected === event.promise); // true
    };
-   let iterator = o.createIterator([1, 2, 3]);
+   rejected = Promise.reject(new Error("Explosion!"));
    ```
 
-4. ke可迭代对象和for-of循环
+4. 串联Promise
 
    ```javascript
-   - 可迭代对象（ iterable ）是包含  Symbol.iterator  属性的对象，与迭代器紧密相关。这个Symbol.iterator 知名符号定义了为指定对象返回迭代器的函数。
-   - 在 ES6 中，所有的集合对象（数组、 Set 与 Map ）、arguments以及字符串都是可迭代对象，因此它们都有默认的迭代器。可迭代对象被设计用于与 ES 新增的  for-of  循环配合使用。
-   - 生成器默认会为  Symbol.iterator  属性赋值，因此它创建的所有迭代器都是可迭代对象
+   - 每次对 then() 或 catch() 的调用实际上创建并返回了另一个 Promise ，仅当前一个 Promise 被完成或拒绝时，后一个 Promise 才会被处理
+   - 若then()中有返回值，则相当于进行Promise.resolve(then返回值)的返回结果并继续往下执行
    
-   //for-of  循环在循环每次执行时会调用可迭代对象的  next()  方法，并将结果对象的  value值存储在一个变量上。循环过程会持续到结果对象的  done  属性变成  true  为止
-   let values = [1, 2, 3];
-   /for-of  循环首先调用了  values  数组的  Symbol.iterator  方法，获取了一个迭代器，这个调用由 JS 引擎在后台进行
-   for (let num of values) {
-   	console.log(num);
-   }
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   p1.then(function(value) {
+   	console.log(value);
+   }).then(function() {
+   	console.log("Finished");
+   });
+   // 42
+   // Finished
+   
    ```
 
-   I. 访问默认迭代器
-
-   ```javascript
-   - 可以使用  Symbol.iterator  来访问对象上的默认迭代器
-   
-   let values = [1, 2, 3];
-   let iterator = values[Symbol.iterator]();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: 3, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   
-   //for-of  循环在执行之前会做类似的检查
-   function isIterable(object) {
-   	return typeof object[Symbol.iterator] === "function";
-   }
-   console.log(isIterable([1, 2, 3])); // true
-   console.log(isIterable("Hello")); // true
-   console.log(isIterable(new Map())); // true
-   console.log(isIterable(new Set())); // true
-   console.log(isIterable(new WeakMap())); // false
-   console.log(isIterable(new WeakSet())); // false
-   ```
-
-   II. 创建可迭代对象
-
-   ```javascript
-   - 自定义对象默认情况下不是可迭代对象，但可以创建一个包含生成器的Symbol.iterator  属性，将它们变成可迭代对象
-   let collection = {
-       items: [],
-       *[Symbol.iterator]() {
-           for (let item of this.items) {
-           	yield item;
-           }
-       }
-   };
-   collection.items.push(1);
-   collection.items.push(2);
-   collection.items.push(3);
-   for (let x of collection) {
-   console.log(x);
-   }
-   ```
-
-5. 内置迭代器
-
-   I. 集合迭代器
-
-   ```javascript
-   - ES6 具有三种集合对象类型：数组、 Map 与 Set 。它们都拥有如下的迭代器，便于探索其内容：
-   	- entries()  ：返回一个包含键值对的迭代器；
-   	- values()  ：返回一个包含集合中的值的迭代器；
-   	- keys()  ：返回一个包含集合中的键的迭代器。
-   
-   - entries迭代器
-   	- ntries()  迭代器会在每次  next()  被调用时返回一个双项数组，表示集合中每个元素的键与值：对于数组来说，第一项是数值索引；而对于 Set ，第一项既是键又是值； Map 的第一项也是键
-   	let colors = [ "red", "green", "blue" ];
-       let tracking = new Set([1234, 5678, 9012]);
-       let data = new Map();
-       data.set("title", "Understanding ES6");
-       data.set("format", "ebook");
-       for (let entry of colors.entries()) {
-       	console.log(entry);
-       }
-       for (let entry of tracking.entries()) {
-       	console.log(entry);
-       }
-       for (let entry of data.entries()) {
-       	console.log(entry);
-       }
-   
-       // [0, "red"]
-       // [1, "green"]
-       // [2, "blue"]
-       // [1234, 1234]
-       // [5678, 5678]
-       // [9012, 9012]
-       // ["title", "Understanding ES6"]
-       // ["format", "ebook"]
-   
-   - values迭代器
-   	- values()  迭代器仅仅能返回存储在集合内的值
-   	let colors = [ "red", "green", "blue" ];
-       let tracking = new Set([1234, 5678, 9012]);
-       let data = new Map();
-       data.set("title", "Understanding ES6");
-       data.set("format", "ebook");
-       for (let value of colors.values()) {
-       	console.log(value);
-       }
-       for (let value of tracking.values()) {
-       	console.log(value);
-       }
-       for (let value of data.values()) {
-       	console.log(value);
-       }
-   	// "red"
-   	// "green"
-   	// "blue"
-   	// 1234
-   	// 5678
-   	// 9012
-   	// "Understanding ES6"
-   	// "ebook"
-   
-   - keys迭代器
-   	- keys()  迭代器能返回集合中的每一个键。
-   		- 对于数组来说，它只返回了数值类型的键，永不返回数组的其他自有属性； 
-   		- Set 的键与值是相同的，因此它的  keys()  与  values()  会返回相同的迭代器；
-            - 对于 Map ，keys()  迭代器返回了每个不重复的键
-       let colors = [ "red", "green", "blue" ];
-       let tracking = new Set([1234, 5678, 9012]);
-       let data = new Map();
-       data.set("title", "Understanding ES6");
-       data.set("format", "ebook");
-       for (let key of colors.keys()) {
-       	console.log(key);
-       }
-       for (let key of tracking.keys()) {
-       	console.log(key);
-       }
-       for (let key of data.keys()) {
-       	console.log(key);
-       }
-   
-   - 当  for-of  循环没有显式指定迭代器时，每种集合类型都有一个默认的迭代器供循环使用。
-   	- values()  方法是数组与 Set 的默认迭代器
-   	- entries()  方法则是 Map 的默认迭代器
-   
-   - Map 默认迭代器的行为有助于在  for-of  循环中使用解构
-   let data = new Map();
-   data.set("title", "Understanding ES6");
-   data.set("format", "ebook");
-   // 与使用 data.entries() 相同
-   for (let [key, value] of data) {
-   	console.log(key + "=" + value);
-   }
-   ```
-
-   II. 字符串迭代器
-
-   ```javascript
-   - ES5 标准化了字符串的方括号表示法，用于访问其中的字符。不过方括号表示法工作在码元而非字符上，因此它不能被用于正确访问双码元的字符
-   //字符串包含一个Unicode 字符
-   var message = "A B" ;
-   for (let i=0; i < message.length; i++) {
-   	console.log(message[i]);
-   }
-   // A
-   // (blank) //(blank)  代表空行
-   // (blank)
-   // (blank)
-   // (blank)
-   // B
-   
-   - 字符串的默认迭代器正是用于解决字符串迭代问题，借助它就能处理字符而不是码元
-   var message = "A B" ;
-   for (let c of message) {
-   	console.log(c);
-   }
-   // A
-   // (blank)
-   // 
-   // (blank)
-   // B
-   ```
-
-   III. NodeList迭代器
-
-   ```javascript
-   - 文档对象模型（ DOM ）具有一种  NodeList  类型，用于表示页面文档中元素的集合
-   - 随着默认迭代器被加入 ES6 ， DOM 关于  NodeList  的规定也包含了一个默认迭代器（此规定在 HTML 规范而非 ES6 规范中），其表现方式与数组的默认迭代器一致
-   var divs = document.getElementsByTagName("div");
-   for (let div of divs) {
-   	console.log(div.id);
-   }
-   ```
-
-   IV. 扩展运算符与非数组的可迭代对象
-
-   ```javascript
-   - 扩展运算符能作用于所有可迭代对象，并且会使用默认迭代器来判断需要使用哪些值。所有的值都从迭代器中被读取出来，并按返回值的顺序插入数组
-   
-   let set = new Set([1, 2, 3, 3, 3, 4, 5]),
-       array = [...set];
-   console.log(array); // [1,2,3,4,5]
-   
-   let map = new Map([ ["name", "Nicholas"], ["age", 25]]),
-       array = [...map];
-   console.log(array); // [ ["name", "Nicholas"], ["age", 25]]
-   
-   - 你能不限次数地在数组字面量中使用扩展运算符，而且可以在任意位置用扩展运算符将可迭代对象的多个项插入数组，按扩展运算符所在的位置插入新数组，
-   
-   let smallNumbers = [1, 2, 3],
-       bigNumbers = [100, 101, 102],
-       allNumbers = [0, ...smallNumbers, ...bigNumbers];
-   console.log(allNumbers.length); // 7
-   console.log(allNumbers); // [0, 1, 2, 3, 100, 101, 102]
-   ```
-
-6. 迭代器高级功能
-
-   I. 传递参数给迭代器
-
-   ```javascript
-   - 能通过  next()  方法向迭代器内传递参数。当一个参数被传递给next()  方法时，该参数就会成为生成器内部  yield  语句的值
-   
-   function *createIterator() {
-       let first = yield 1;
-       let second = yield first + 2; // 4 + 2
-       yield second + 3; // 5 + 3
-   }
-   let iterator = createIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next(4)); // "{ value: 6, done: false }"
-   console.log(iterator.next(5)); // "{ value: 8, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
-   - 对于  next()  的首次调用是一个特殊情况，传给它的任意参数都会被忽略。由于传递给next()  的参数会成为  yield  语句的值，则首次调用给  next()  提供的参数就只会替换生成器函数中的第一个  yield  语句；但若要在生成器内部使用该值，又要求它在此  yield  语句之前就必须能被访问到，而这是不可能的。因此在首次调用  next()  时传递参数是没有意义的
-   ```
-
-   > ![generator内部代码执行](/src/img/generator-param.jpg)
-   >
-   > - 黄色表示对于  next()  的第一次调用、以及在生成器内部执行的代码；
-   > - 水蓝色表示了对
-   >   next(4)  的调用以及随之执行的代码；
-   > - 紫色则表示对  next(5)  的调用以及随之执行的代
-   >   码。
-   > - 其中难点在于：在左侧代码执行之前，右侧的各个表达式是如何执行与停止的。这使得
-   >   调试错综复杂的生成器要比调试正规函数更麻烦一些
-
-   II. 在迭代器中抛出错误
+   I. 捕获错误
 
    ````javascript
-   - 能传递给迭代器的不仅是数据，还可以是错误条件。
-   - 迭代器可以使用一个  throw()  方法，让迭代器在恢复执行时抛出一个错误
-   - 既能模仿返回一个值，又能模仿抛出错误（这也就是退出函数的两种方式）
+   - Promise 链允许你捕获前一个 Promise 的完成或拒绝处理函数中发生的错误
+   - 为了确保能正确处理任意可能发生的错误，应当始终在 Promise 链尾部添加拒绝处理函数
    
-   function *createIterator() {
-       let first = yield 1;
-       let second = yield first + 2; // yield 4 + 2 ，然后抛出错误
-       yield second + 3; // 永不会被执行
-   }
-   let iterator = createIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next(4)); // "{ value: 6, done: false }"
-   console.log(iterator.throw(new Error("Boom"))); // 从生成器中抛出了错误
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   p1.then(function(value) {
+   	throw new Error("Boom!");
+   }).catch(function(error) {
+   	console.log(error.message); // "Boom!"
+   });
+   
+   let p1 = new Promise(function(resolve, reject) {
+   	throw new Error("Explosion!");
+   });
+   p1.catch(function(error) {
+   	console.log(error.message); // "Explosion!"
+   	throw new Error("Boom!");
+   }).catch(function(error) {
+   	console.log(error.message); // "Boom!"
+   });
    ````
 
-   > ![generator-error](/src/img/generator-error.jpg)
-   >
-   > 在此示意图中，红色表示当  throw()  被调用时所执行的代码，红星说明了错误在生成器内部
-   > 大约何时被抛出。前两个  yield  语句被执行之后，当调用  throw()  时，在任何其他代码执
-   > 行之前错误就被抛出了
+   II. 在Promise链中返回值
 
    ```javascript
-   function *createIterator() {
-       let first = yield 1;
-       let second;
-       try {
-       	second = yield first + 2; // yield 4 + 2 ，然后抛出错误
-       } catch (ex) {
-       	second = 6; // 当出错时，给变量另外赋值
-       }
-       yield second + 3;
-   }
-   let iterator = createIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next(4)); // "{ value: 6, done: false }"
-   console.log(iterator.throw(new Error("Boom"))); // "{ value: 9, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   p1.then(function(value) {
+   	console.log(value); // "42"
+   	return value + 1;
+   }).then(function(value) {
+   	console.log(value); // "43"
+   });	
+   
+   let p1 = new Promise(function(resolve, reject) {
+   	reject(42);
+   });
+   p1.catch(function(value) {
+   	// 第一个完成处理函数
+   	console.log(value); // "42"
+   	return value + 1;
+   }).then(function(value) {
+   	// 第二个完成处理函数
+   	console.log(value); // "43"
+   });	
    ```
 
-   III. 生成器的return语句
+   III. 在Promise链中返回Promise
 
    ```javascript
-   - 由于生成器是函数，你可以在它内部使用  return  语句，既可以让生成器早一点退出执行，也可以指定在  next()  方法最后一次调用时的返回值
-   - 在生成器内，return表明所有的处理已完成，因此done属性会被设为true，而如果提供了返回值，就会被用于value字段
-   function *createIterator() {
-       yield 1;
-       return;
-       yield 2;
-       yield 3;
-   }
-   let iterator = createIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   let p2 = new Promise(function(resolve, reject) {
+   	resolve(43);
+   });
+   p1.then(function(value) {
+       // 第一个完成处理函数
+       console.log(value); // 42
+       return p2;
+   }).then(function(value) {
+       // 第二个完成处理函数
+       console.log(value); // 43
+   });
    
-   function *createIterator() {
-       yield 1;
-       return 42;
-   }
-   let iterator = createIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 42, done: true }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   //关于此模式需认识的首要重点是第二个完成处理函数并未被添加到 p2 上，而是被添加到第三个Promise
+   //等价于
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   let p2 = new Promise(function(resolve, reject) {
+   	resolve(43);
+   });
+   let p3 = p1.then(function(value) {
+       // 第一个完成处理函数
+       console.log(value); // 42
+       return p2;
+   });
+   p3.then(function(value) {
+       // 第二个完成处理函数
+       console.log(value); // 43
+   });
+   //此处清楚说明了第二个完成处理函数被附加给 p3 而不是 p2 。这是一个细微但重要的区别，因为若 p2 被拒绝，则第二个完成处理函数就不会被调用
    
-   - 扩展运算符与for-of循环会忽略return语句所指定的任意值。一旦它们看到done的值为true，它们就会停止操作而不会读取对应的value值。不过，在生成器进行委托时，迭代器的返回值会非常有用
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   let p2 = new Promise(function(resolve, reject) {
+   	reject(43);
+   });
+   p1.then(function(value) {
+       // 第一个完成处理函数
+       console.log(value); // 42
+       return p2;
+   }).then(function(value) {
+       // 第二个完成处理函数
+       console.log(value); // 永不被调用
+   });
    ```
 
-   IV. 生成器委托
+5. 响应多个Promise
+
+   I. Promise.all()方法
 
    ```javascript
-   - 在某些情况下，将两个迭代器的值合并在一起会更有用。生成器可以用星号（  *  ）配合yield这一特殊形式来委托其他的迭代器
+   - Promise.all() 方法接收单个可迭代对象（如数组）作为参数，并返回一个 Promise 。这个可迭代对象的元素都是 Promise，只有在它们都完成后，所返回的 Promise 才会被完成
    
-   function *createNumberIterator() {
-       yield 1;
-       yield 2;
-   }
-   function *createColorIterator() {
-       yield "red";
-       yield "green";
-   }
-   function *createCombinedIterator() {
-       yield *createNumberIterator();
-       yield *createColorIterator();
-       yield true;
-   }
-   var iterator = createCombinedIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: "red", done: false }"
-   console.log(iterator.next()); // "{ value: "green", done: false }"
-   console.log(iterator.next()); // "{ value: true, done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   let p2 = new Promise(function(resolve, reject) {
+   	resolve(43);
+   });
+   let p3 = new Promise(function(resolve, reject) {
+   	resolve(44);
+   });
+   let p4 = Promise.all([p1, p2, p3]);
+   //传递给 p4 的完成处理函数的结果是一个包含每个决议值（ 42 、 43 与 44 ）的数组，这些值的存储顺序保持了待决议的 Promise 的顺序（与完成的先后顺序无关），因此你可以将结果匹配到每个Promise 
+   p4.then(function(value) {
+       console.log(Array.isArray(value)); // true
+       console.log(value[0]); // 42
+       console.log(value[1]); // 43
+       console.log(value[2]); // 44
+   });
    
-   //此处createCombinedIterator()生成器委托了  createNumberIterator()  并将它的返回值赋值给了result变量。由于createNumberIterator()包含return 3语句，该返回值就是3。result变量接下来会作为参数传递给  createRepeatingIterator()  生成器，指示同一个字符串需要被重复几次（
-   function *createNumberIterator() {
-       yield 1;
-       yield 2;
-       return 3;
+   - 若传递给 Promise.all() 的任意 Promise 被拒绝了，那么方法所返回的 Promise 就会立刻被拒绝，而不必等待其他的 Promise 结束
+   - 拒绝处理函数总会接收到单个值，而不是一个数组，该值就是被拒绝的 Promise 所返回的拒绝值
+   
+   let p1 = new Promise(function(resolve, reject) {
+   	resolve(42);
+   });
+   let p2 = new Promise(function(resolve, reject) {
+   	reject(43);
+   });
+   let p3 = new Promise(function(resolve, reject) {
+   	resolve(44);
+   });
+   let p4 = Promise.all([p1, p2, p3]);
+   p4.catch(function(value) {
+   	console.log(Array.isArray(value)) // false
+   	console.log(value); // 43
+   });
+   ```
+
+   II. Promise.race()方法
+
+   ```javascript
+   - Promise.race() 提供了监视多个 Promise 的一个稍微不同的方法。
+   	- 此方法也接受一个包含需监视的 Promise 的可迭代对象，并返回一个新的 Promise ，但一旦来源 Promise 中有一个被解决，所返回的 Promise 就会立刻被解决。
+       - 与等待所有 Promise 完成的 Promise.all() 方法不同，在来源 Promise 中任意一个被完成时，Promise.race()  方法所返回的 Promise 就能作出响应
+       
+   // `delay`毫秒后执行resolve
+   function timerPromisefy(delay) {
+       return new Promise(function (resolve) {
+           setTimeout(function () {
+           	resolve(delay);
+           }, delay);
+       });
    }
-   function *createRepeatingIterator(count) {
-       for (let i=0; i < count; i++) {
-       	yield "repeat";
+   // 任何一个promise变为resolve或reject 的话程序就停止运行
+   Promise.race([
+       timerPromisefy(1),
+       timerPromisefy(32),
+       timerPromisefy(64),
+       timerPromisefy(128)
+   ]).then(function (value) {
+   	console.log(value); // => 1
+   });
+   - Promise.race() 的 Promise 确实在进行赛跑，看哪一个首先被解决。若胜出的 Promise 是被完成，则返回的新 Promise 也会被完成；而胜出的 Promise 若是被拒绝，则新 Promise 也会被拒绝
+   
+   let p1 = new Promise(function(resolve, reject) {
+           setTimeout(function() {
+             resolve(42);
+           }, 0);
+         });
+   let p2 = Promise.reject(43);
+   let p3 = new Promise(function(resolve, reject) {
+   	resolve(44);
+   });
+   let p4 = Promise.race([p1, p2, p3]);
+   p4.catch(function(value) {
+   	console.log(value); // 43
+   });
+   ```
+
+6. 继承Promise
+
+   ```javascript
+   class MyPromise extends Promise {
+       // 使用默认构造器
+       success(resolve, reject) {
+       	return this.then(resolve, reject);
+       }
+       failure(reject) {
+       	return this.catch(reject);
        }
    }
-   function *createCombinedIterator() {
-       let result = yield *createNumberIterator();
-       yield *createRepeatingIterator(result);
-   }
-   var iterator = createCombinedIterator();
-   console.log(iterator.next()); // "{ value: 1, done: false }"
-   console.log(iterator.next()); // "{ value: 2, done: false }"
-   console.log(iterator.next()); // "{ value: "repeat", done: false }"
-   console.log(iterator.next()); // "{ value: "repeat", done: false }"
-   console.log(iterator.next()); // "{ value: "repeat", done: false }"
-   console.log(iterator.next()); // "{ value: undefined, done: true }"
+   let promise = new MyPromise(function(resolve, reject) {
+   	resolve(42);
+   });
+   promise.success(function(value) {
+   	console.log(value); // 42
+   }).failure(function(value) {
+   	console.log(value);
+   });
    ```
 
 7. 异步任务运行
 
-   I. 一个简单的任务运行器
-
    ```javascript
-   - 由于yield能停止运行，并在重新开始运行前等待next()方法被调用，你就可以在没有回调函数的情况下实现异步调用
-   
-   function run(taskDef) {
-       // 创建迭代器，让它在别处可用
-       let task = taskDef();
-       // 启动任务
-       let result = task.next();
-       // 递归使用函数来保持对 next() 的调用
-       function step() {
-           // 如果还有更多要做的
-           if (!result.done) {
-               result = task.next();
-               step();
-           }
-       }
-       // 开始处理过程
-       step();
-   }
-   
-   run(function*() {
-       console.log(1);
-       yield;
-       console.log(2);
-       yield;
-       console.log(3);
-   });
-   ```
-
-   II. 带数据的任务运行
-
-   ```javascript
-   function run(taskDef) {
-       // 创建迭代器，让它在别处可用
-       let task = taskDef();
-       // 启动任务
-       let result = task.next();
-       // 递归使用函数来保持对 next() 的调用
-       function step() {
-           // 如果还有更多要做的
-           if (!result.done) {
-               result = task.next(result.value);
-               step();
-           }}
-       // 开始处理过程
-       step();
-   }
-   
-   run(function*() {
-       let value = yield 1;
-       console.log(value); // 1
-       value = yield value + 3;
-       console.log(value); // 4
-   });
-   ```
-
-   III. 异步任务运行器
-
-   ```javascript
-   function run(taskDef) {
-       // 创建迭代器，让它在别处可用
-       let task = taskDef();
-       // 启动任务
-       let result = task.next();
-       // 递归使用函数来保持对 next() 的调用
-       function step() {
-           // 如果还有更多要做的
-           if (!result.done) {
-               if (typeof result.value === "function") {
-                   result.value(function(err, data) {
-                       if (err) {
-                           result = task.throw(err);
-                           return;
-                       }
-                       result = task.next(data);
-                       step();
-               	});
-               } else {
-                   result = task.next(result.value);
-                   step();
-               }
-           }
-       }
-       // 开始处理过程
-       step();
-   }
-   
    let fs = require("fs");
-   function readFile(filename) {
-       return function(callback) {
-       	fs.readFile(filename, callback);
-       };
+   function run(taskDef) {
+       // 创建迭代器
+       let task = taskDef();
+       // 启动任务
+       let result = task.next();
+       // 递归使用函数来进行迭代
+       (function step() {
+           // 如果还有更多要做的
+           if (!result.done) {
+               // 决议一个 Promise ，让任务处理变简单
+               let promise = Promise.resolve(result.value);
+               promise.then(function(value) {
+                   result = task.next(value);
+                   step();
+               }).catch(function(error) {
+                   result = task.throw(error);
+                   step();
+               });
+           }
+       }());
    }
-   
+   // 定义一个函数来配合任务运行器使用
+   function readFile(filename) {
+       return new Promise(function(resolve, reject) {
+           fs.readFile(filename, function(err, contents) {
+               if (err) {
+               	reject(err);
+               } else {
+               	resolve(contents);
+               }
+           });
+       });
+   }
+   // 运行一个任务
    run(function*() {
        let contents = yield readFile("config.json");
        doSomethingWith(contents);
        console.log("Done");
    });
-   
-   //吃橘子过程的异步模拟
-    	function washHand(){
-           console.log('洗手中');
-           setTimeout(function(){
-             i.next('洗完手');
-           },2000);
-         }
-         function pealOrange(data){
-           console.log(data + ', 剥桔子中');
-           setTimeout(function(){
-             i.next('剥好的橘子');          
-           },3000);
-         }
-         function eat(data){
-           console.log(`拿着${data}吃起来`);
-           setTimeout(function(){
-             console.log('吃完了橘子，感叹好吃');       
-           },2000);
-         }
-   
-         function *eatOrange(){
-           let result = yield washHand();
-           result = yield pealOrange(result);
-           yield eat(result);
-         }
-   
-         var i = eatOrange();
-         i.next();
    ```
+
+---
+
+##### 代理与反射接口
+
+---
+
+##### 用模块封装代码
+
+1. 何为模块
+
+   ```javascript
+   - 模块（ Modules ）是使用不同方式加载的 JS 文件（与 JS 原先的脚本加载方式相对）。这种不同模式很有必要，因为它与脚本（ script ）有大大不同的语义：
+   	-  模块代码自动运行在严格模式下，并且没有任何办法跳出严格模式；
+   	-  在模块的顶级作用域创建的变量，不会被自动添加到共享的全局作用域，它们只会在模块顶级作用域的内部存在；
+   	-  模块顶级作用域的  this  值为  undefined 
+   	-  模块不允许在代码中使用 HTML 风格的注释（这是 JS 来自于早期浏览器的历史遗留特性）
+   	-  对于需要让模块外部代码访问的内容，模块必须导出它们；
+   	-  允许模块从其他模块导入绑定。
+   ```
+
+2. 基本的导出
+
+   ```javascript
+   - 你可以使用 export 关键字将已发布代码部分公开给其他模块。最简单方法就是将 export 放置在任意变量、函数或类声明之前，从模块中将它们公开出去
+   
+   // 导出数据
+   export var color = "red";
+   export let name = "Nicholas";
+   export const magicNumber = 7;
+   // 导出函数
+   export function sum(num1, num2) {
+   	return num1 + num1;
+   }
+   // 导出类
+   export class Rectangle {
+       constructor(length, width) {
+           this.length = length;
+           this.width = width;
+       }
+   }
+   // 此函数为模块私有
+   function subtract(num1, num2) {
+   	return num1 - num2;
+   }
+   // 定义一个函数……
+   function multiply(num1, num2) {
+   	return num1 * num2;
+   }
+   // ……稍后将其导出
+   export { multiply };	
+   
+   - 除了 export 关键字之外，每个声明都与正常形式完全一样。
+   	- 每个被导出的函数或类都有名称，这是因为导出的函数声明与类声明必须要有名称。
+   	- 不能使用这种语法来导出匿名函数或匿名类，除非使用了 default 关键字
+   - 其次，细看一下  multiply()  函数，它并没有在定义时被导出。这是因为你不仅能导出声明，还可以导出引用（即代码最后一行）。
+   - 最后请注意，此例并未导出 subtract() 函数。此函数在模块外部不可访问，因为任意没有被显式导出的变量、函数或类都会在模块内保持私有。
+   ```
+
+3. 基本的导入
+
+   ```javascript
+   - 一旦你有了包含导出的模块，就能在其他模块内使用import 关键字来访问已被导出的功能。 
+   	- import  语句有两个部分，一是需要导入的标识符，二是需导入的标识符的来源模
+   import { identifier1, identifier2 } from "./example.js";
+   
+   - 导入绑定的列表看起来与对象解构相似，但实则并无关联。
+   
+   - 当从模块导入了一个绑定时，该绑定表现得就像使用了  const  的定义。
+   	- 这意味着不能再定义另一个同名变量（包括导入另一个同名绑定）
+   	- 也不能在对应的import 语句之前使用此标识符（也就是要受暂时性死区限制），更不能修改它的值
+       
+   - export 与import 都有一个重要的限制，那就是它们必须被用在其他语句或表达式的外部
+   
+   if (flag) {
+   	export flag; // 语法错误
+   }
+   
+   function tryImport() {
+   	import flag from "./example.js"; // 语法错误
+   }
+   ```
+
+   I. 导入单个绑定
+
+   ```javascript
+   // 单个导入
+   import { sum } from "./example.js";
+   console.log(sum(1, 2)); // 3
+   sum = 1; // 出错
+   
+   - 要确保在导入的文件名前面使用 /  、./ 或../ ，以便在浏览器与 Node.js 之间保持良好兼容性
+   ```
+
+   II. 导入多个绑定
+
+   ```javascript
+   // 多个导入
+   import { sum, multiply, magicNumber } from "./example.js";
+   console.log(sum(1, magicNumber)); // 8
+   console.log(multiply(1, 2)); // 2
+   ```
+
+   III. 完全导入一个模块
+
+   ```javascript
+   - 还有一种特殊情况，即允许你将整个模块当作单一对象进行导入，该模块的所有导出都会作为对象的属性存在
+   
+   // 完全导入
+   import * as example from "./example.js";
+   console.log(example.sum(1,
+   example.magicNumber)); // 8
+   console.log(example.multiply(1, 2)); // 2
+   
+   - 要记住，无论你对同一个模块使用了多少次import 语句，该模块都只会被执行一次。在导出模块的代码执行之后，已被实例化的模块就被保留在内存中，并随时都能被其他import  所引用
+   ```
+
+   IV. 导入绑定的微妙怪异点
+
+   ```javascript
+   - ES6 的import  语句为变量、函数与类创建了只读绑定，而不像普通变量那样简单引用了原始绑定。尽管导入绑定的模块无法修改绑定的值，但负责导出的模块却能做到这一点
+   
+   //在范例中的模块导入与导出，外部模块导入的  name  变量与在  example.js  模块内部的  name  变量对比，前者是对于后者的只读引用，会始终反映出后者的变化。就算后者的值在负责导出的模块中发生了变化，这种绑定关系也不会被破坏
+   export var name = "Nicholas";
+   export function setName(newName) {
+   	name = newName;
+   }
+   
+   import { name, setName } from "./example.js";
+   console.log(name); // "Nicholas"
+   setName("Greg");
+   console.log(name); // "Greg"
+   name = "Nicholas"; // error
+   ```
+
+4. 重命名导入与导出
+
+   ```javascript
+   // 1
+   function sum(num1, num2) {
+   	return num1 + num2;
+   }
+   export { sum as add };	
+   
+   import { add } from "./example.js";
+   
+   // 2
+   import { add as sum } from "./example.js";
+   console.log(typeof add); // "undefined"
+   console.log(sum(1, 2)); // 3
+   ```
+
+5. 模块的默认值
+
+   ```javascript
+       - 模块的默认值（ default value ）是使用 default 关键字所指定的单个变量、函数或类，而你在每个模块中只能设置一个默认导出，将 default 关键字用于多个导出会是语法错误
+   ```
+
+   I. 导出默认值
+
+   ```javascript
+   // 此模块将一个函数作为默认值进行了导出， default 关键字标明了这是一个默认导出。此函数并不需要有名称，因为它就代表这个模块自身
+   export default function(num1, num2) {
+   	return num1 + num2;
+   }
+   
+   //sum()  函数先被定义了，随后它作为模块的默认值被导出。若默认值需要计算才能得出，你或许会选择这种方式
+   function sum(num1, num2) {
+   	return num1 + num2;
+   }
+   export default sum;
+   
+   //将标识符作为默认导出来指定的第三种方式，是使用重命名语法
+   function sum(num1, num2) {
+   	return num1 + num2;
+   }
+   export { sum as default };
+   
+   ```
+
+   II. 导入默认值
+
+   ```javascript
+   // 导入默认值
+   // 此处并未使用花括号，与之前在非默认的导入中看到的不同。本地名称  sum  被用于代表目标模块所默认导出的函
+   import sum from "./example.js";
+   console.log(sum(1, 2)); // 3
+   
+   //对于既导出了默认值、又导出了一个或更多非默认的绑定的模块，你可以使用单个语句来导入它的所有导出绑定
+   export let color = "red";
+   export default function(num1, num2) {
+   	return num1 + num2;
+   }
+   // 要记住在 import 语句中默认名称必须位于非默认名称之前
+   import sum, { color } from "./example.js";
+   console.log(sum(1, 2)); // 3
+   console.log(color); // "red"
+   
+   // 等价于上个例子
+   import { default as sum, color } from "example";
+   console.log(sum(1, 2)); // 3
+   console.log(color); // "red"
+   ```
+
+6. 绑定的再导出
+
+   ```javascript
+   import { sum } from "./example.js";
+   export { sum }
+   此方法能奏效，但还可以使用单个语句来完成相同任务：
+   export { sum } from "./example.js";
+   
+   export { sum as add } from "./example.js";
+   
+   // 若想将来自另一个模块的所有值完全导出，可以使用星号（ * ）模式：
+   export * from "./example.js";
+   ```
+
+7. 无绑定的导入 
+
+   ```javascript
+   - 诸如 Array 与 Object 之类的内置对象的共享定义在模块内部是可访问的，并且对于这第十三章 用模块封装代码些对象的修改会反映到其他模块中。
+   
+   // 没有导出与导入的模块
+   Array.prototype.pushAll = function(items) {
+       // items 必须是一个数组
+       if (!Array.isArray(items)) {
+       	throw new TypeError("Argument must be an array.");
+       }
+       // 使用内置的 push() 与扩展运算符
+       return this.push(...items);
+   };	
+   
+   import "./example.js";
+   let colors = ["red", "green", "blue"];
+   let items = [];
+   items.pushAll(colors);
+   ```
+
+8. 加载模块
+
+   ```javascript
+   - ES6 未选择给所有 JS 环境努力创建一个有效的单一规范，而只规定了语法，并指定了一个未定义的内部操作  HostResolveImportedModule  的抽象加载机制。 web 浏览器与 Node.js 可以自行决定用什么方式实现  HostResolveImportedModule，以便更好契合各自的环境
+   ```
+
+   I. 在web浏览器中使用模块
+
+   ```javascript
+   // 在script标签中使用模块
+   <!-- load a module JavaScript file -->
+   <script type="module" src="module.js"></script>
+   
+   <!-- include a module inline -->
+   <script type="module">
+       import { sum } from "./example.js";
+       let result = sum(1, 2);
+   </script>
+   
+   // web浏览器中的模块加载次序
+   
+   - 模块相对脚本的独特之处在于：它们能使用import 来指定必须要加载的其他文件，以保证正确执行。为了支持此功能， <script type="module"> 总是自动应用  defer  属性
+   - defer  属性是加载脚本文件时的可选项，但在加载模块文件时总是自动应用的
+   - 当 HTML 解析到拥有 src 属性的 <script type="module"> 标签时，就会立即开始下载模块文件，但并不会执行它，直到整个网页文档全部解析完为止
+   - 模块也会按照它们在 HTML 文件中出现的顺序依次执行，这意味着第一个 <script type="module"> 总是保证在第二个之前执行，即使其中有些模块不是用 src 指定而是包含了内联脚本
+   
+   <!-- this will execute first -->
+   <script type="module" src="module1.js"></script>
+   <!-- this will execute second -->
+   <script type="module">
+       import { sum } from "./example.js";
+       let result = sum(1, 2);
+   </script>
+   <!-- this will execute third -->
+   <script type="module" src="module2.js"></script>
+   
+   - 所有模块，无论是用 <script type="module"> 显式包含的，还是用import 隠式包含的，都会依照次序加载与执行。在前面的范例中，完整的加载次序是：
+   	- 下载并解析  module1.js  ；
+   	- 递归下载并解析在  module1.js  中使用import 导入的资源；
+   	- 解析内联模块；
+   	- 递归下载并解析在内联模块中使用import 导入的资源；
+   	- 下载并解析 module2.js  ；
+   	- 递归下载并解析在 module2.js 中使用import 导入的资源。
+   - 一旦加载完毕，直到页面文档被完整解析之前，都不会有任何代码被执行。在文档解析完毕后，会发生下列行为：
+   	- 递归执行  module1.js  导入的资源；
+   	- 执行  module1.js  ；
+   	- 递归执行内联模块导入的资源；
+   	- 执行内联模块；
+   	- 递归执行  module2.js  导入的资源；    
+   	- 执行  module2.js  
+   ```
+
+
+---
+
