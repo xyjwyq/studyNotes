@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>cpmputed---methods</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">{{getFullName()}}{{init()}}
+        <span>{{age}}</span>
+        <button @click="clickMe()">点击{{click}}</button>
+    </div>
+    <div id="app1">
+        <p>{{combine()}}</p>
+        <p>{{age}}</p>
+        <p>{{init()}}</p>
+    </div>
+    <script>
+        const vm = new Vue({
+            el: '#app',
+            data: {
+                firstName: 'xie',
+                lastName: 'kang',
+                age: 26,
+                click: 'aaa'
+                // fullName:''
+            },
+            methods: {
+                getFullName() {
+                    console.log('---------------------------');
+                    return this.firstName + ' ' + this.lastName;
+                },
+                clickMe(){
+                    cosole.log('click');
+                    this.click += '1';
+                },
+                init() {
+                    console.log('this is a test');
+                }
+            },
+            computed: {
+
+            },
+            created() {
+                // this.init();
+            }
+        });
+
+        const vm1 = new Vue({
+            el: '#app1',
+            data: {
+                name: 'weiwei',
+                role: 'wife',
+                age: 20
+            },
+            methods: {
+                combine() {
+                    console.log('app11111');
+                    return this.name + " " + this.role;
+                },
+                init(){
+                    console.log('this is app1 test');
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

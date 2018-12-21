@@ -277,5 +277,67 @@
 
 ---
 
+#### 18-11-30
+
+`generic`：泛型，一般化，通用的  
+`generic algorithm`：泛型算法  
+`getter`：取值函数  
+`global`：全局  
+`global object`：全局对象  
+`global scope resolution operator`：全局范围解析操作符  
+`group`：群组  
+`group box`：分组框  
+`guard clause`：卫语句  
+`GUI`：图形界面  
+
+---
+
+#### 18-12-03
+
+`hand shaking`：握手协商  
+`handle`：手柄，句柄，操作  
+`handler`：处理函数  
+`hard-coded`：硬编码  
+`hard-copy`：硬拷贝，屏幕截图  
+`hard disk`：硬盘  
+`hardware`：硬件  
+`hash table`：哈希表  
+`header file`：头文件  
+`heap`：堆积  
+
+---
+
+#### 18-12-04
+
+`hierarchy`：层次结构  
+`hook`：钩子  
+`hyperlink`：超链接  
+`icon`：图标  
+`IDE`：集成开发环境  
+`identifier`：标识符  
+`if and only if`：当且仅当  
+`lllinois`：伊利诺斯  
+`image`：图像  
+`immediate base`：直接上层基类  
+`immediate derived`：直接下层派生类，直接派生类
+
+---
+
+#### 18-12-05
+
+`immutability`：不变性  
+`immutable`：不可变  
+`implement`：实现  
+`implementation`：实现，启动  
+`implicit`：隐式，隐喻的  
+`import`：引入，导入  
+`increment operator`：累加运算符，++操作符  
+`infinite loop`：无线循环  
+`infinite recursive`：无限递归  
+`information`：信息，资讯  
+`infrastructure`：公共基础建设
+
+---
+
 
 
