@@ -423,19 +423,183 @@ Vue.js学习
 
 2. prop
 
-   ```javascript
-   // 组件注册(全局)
-   Vue.component('blog-post', {
-     props: ['title'],
-     template: '<h3>{{ title }}</h3>'
-   })
-   ```
+   - 基本使用
 
-   ```html
-   <blog-post title="My journey with Vue"></blog-post>
-   <blog-post title="Blogging with Vue"></blog-post>
-   <blog-post title="Why Vue is so fun"></blog-post>
-   ```
+     ```javascript
+     // 组件注册(全局)
+     Vue.component('blog-post', {
+       props: ['title'],
+       template: '<h3>{{ title }}</h3>'
+     })
+     ```
+
+     ```html
+     <blog-post title="My journey with Vue"></blog-post>
+     <blog-post title="Blogging with Vue"></blog-post>
+     <blog-post title="Why Vue is so fun"></blog-post>
+     ```
+
+   - 组件上使用v-model
+
+     ```html
+     Vue.component('custom-input', {
+       props: ['value'],
+       template: `
+         <input
+           v-bind:value="value"
+           v-on:input="$emit('input', $event.target.value)"
+         >
+       `
+     })
+     
+     <custom-input v-model="searchText"></custom-input>
+     ```
+
+   - prop的大小写
+
+     - HTML 中的特性名是大小写不敏感的，所以浏览器会把所有大写字符解释为小写字符。这意味着当你使用 DOM 中的模板时，camelCase (驼峰命名法) 的 prop 名需要使用其等价的 kebab-case (短横线分隔命名) 命名
+
+   - prop类型
+
+     ```javascript
+     props: ['title', 'likes', 'isPublished', 'commentIds', 'author']
+     props: {
+       title: String,
+       likes: Number,
+       isPublished: Boolean,
+       commentIds: Array,
+       author: Object
+     }
+     ```
+
+   - 单向数据流
+
+     - 所有的 prop 都使得其父子 prop 之间形成了一个**单向下行绑定**：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外改变父级组件的状态，从而导致你的应用的数据流向难以理解
+
+       ```javascript
+       //  prop 用来传递一个初始值；这个子组件接下来希望将其作为一个本地的 prop 数据来使用
+       props: ['initialCounter'],
+       data: function () {
+         return {
+           counter: this.initialCounter
+         }
+       }
+       //  prop 以一种原始的值传入且需要进行转换。
+       props: ['size'],
+       computed: {
+         normalizedSize: function () {
+           return this.size.trim().toLowerCase()
+         }
+       }
+       ```
+
+   - prop验证
+
+     ```javascript
+     Vue.component('my-component', {
+       props: {
+         // 基础的类型检查 (`null` 匹配任何类型)
+         propA: Number,
+         // 多个可能的类型
+         propB: [String, Number],
+         // 必填的字符串
+         propC: {
+           type: String,
+           required: true
+         },
+         // 带有默认值的数字
+         propD: {
+           type: Number,
+           default: 100
+         },
+         // 带有默认值的对象
+         propE: {
+           type: Object,
+           // 对象或数组默认值必须从一个工厂函数获取
+           default: function () {
+             return { message: 'hello' }
+           }
+         },
+         // 自定义验证函数
+         propF: {
+           validator: function (value) {
+             // 这个值必须匹配下列字符串中的一个
+             return ['success', 'warning', 'danger'].indexOf(value) !== -1
+           }
+         }
+       }
+     })
+     
+     // 注意那些 prop 会在一个组件实例创建之前进行验证，所以实例的属性 (如 data、computed 等) 在 default 或 validator 函数中是不可用的
+     ```
+
+   - 类型检查
+
+     - `String`
+
+     - `Number`
+
+     - `Boolean`
+
+     - `Array`
+
+     - `Object`
+
+     - `Date`
+
+     - `Function`
+
+     - `Symbol`
+
+     - `type` 还可以是一个自定义的构造函数，并且通过 `instanceof` 来进行检查确认
+
+       ```javascript
+       function Person (firstName, lastName) {
+         this.firstName = firstName
+         this.lastName = lastName
+       }
+       
+       Vue.component('blog-post', {
+         props: {
+           author: Person
+         }
+       })
+       ```
+
+   - 禁用特性继承
+
+     ```javascript
+     // 如果你不希望组件的根元素继承特性，你可以在组件的选项中设置 
+     Vue.component('my-component', {
+       inheritAttrs: false,
+       // ...
+     })
+     
+     // 这尤其适合配合实例的 $attrs 属性使用,该属性包含了传递给一个组件的特性名和特性值
+     
+     // 有了 inheritAttrs: false 和 $attrs，你就可以手动决定这些特性会被赋予哪个元素。在撰写基础组件的时候是常会用到的
+     Vue.component('base-input', {
+       inheritAttrs: false,
+       props: ['label', 'value'],
+       template: `
+         <label>
+           {{ label }}
+           <input
+             v-bind="$attrs"
+             v-bind:value="value"
+             v-on:input="$emit('input', $event.target.value)"
+           >
+         </label>
+       `
+     })
+     
+     // 这个模式允许你在使用基础组件的时候更像是使用原始的 HTML 元素，而不会担心哪个元素是真正的根元素
+     <base-input
+       v-model="username"
+       class="username-input"
+       placeholder="Enter your username"
+     ></base-input>
+     ```
 
 3. 单个根元素
 
@@ -596,5 +760,206 @@ Vue.js学习
        	'componentA':componentA,
        	'componentB':componentB
    	}
-   });
+   })
    ```
+
+7. 自定义事件
+
+   - **事件名**
+
+     - 不同于组件和 prop，事件名不存在任何自动化的大小写转换。而是触发的事件名需要完全匹配监听这个事件所用的名称
+     - 不同于组件和 prop，事件名不会被用作一个 JavaScript 变量名或属性名，所以就没有理由使用 camelCase 或 PascalCase 了。
+     -  `v-on` 事件监听器在 DOM 模板中会被自动转换为全小写 (因为 HTML 是大小写不敏感的)，所以 `v-on:myEvent` 将会变成 `v-on:myevent`——导致 `myEvent` 不可能被监听到
+     - 推荐你**始终使用 kebab-case 的事件名**
+
+   - **组件的v-model**
+
+     - 一个组件上的 `v-model` 默认会利用名为 `value` 的 prop 和名为 `input` 的事件，但是像单选框、复选框等类型的输入控件可能会将 `value` 特性用于不同的目的。`model` 选项可以用来避免这样的冲突：
+
+       ```javascript
+       Vue.component('base-checkbox', {
+         model: {
+           prop: 'checked',
+           event: 'change'
+         },
+         props: {
+           checked: Boolean
+         },
+         template: `
+           <input
+             type="checkbox"
+             v-bind:checked="checked"
+             v-on:change="$emit('change', $event.target.checked)"
+           >
+         `
+       })
+       
+       <base-checkbox v-model="lovingVue"></base-checkbox>
+       
+       // 注意仍然需要在组件的 props 选项里声明 checked 这个 prop。
+       ```
+
+   - **将原生事件绑定到组件**
+
+     ```javascript
+     // 使用.native修饰符，但是在你尝试监听一个类似 <input> 的非常特定的元素时，由于组件在vue中做了一定的重构，导致.native修饰符会悄然失效，不会报任何错误
+     <base-input v-on:focus.native="onFocus"></base-input>
+     
+     // 使用$listeners属性
+     Vue.component('base-input', {
+       inheritAttrs: false,
+       props: ['label', 'value'],
+       computed: {
+         inputListeners: function () {
+           var vm = this
+           // `Object.assign` 将所有的对象合并为一个新对象
+           return Object.assign({},
+             // 我们从父级添加所有的监听器
+             this.$listeners,
+             // 然后我们添加自定义监听器，
+             // 或覆写一些监听器的行为
+             {
+               // 这里确保组件配合 `v-model` 的工作
+               input: function (event) {
+                 vm.$emit('input', event.target.value)
+               }
+             }
+           )
+         }
+       },
+       template: `
+         <label>
+           {{ label }}
+           <input
+             v-bind="$attrs"
+             v-bind:value="value"
+             v-on="inputListeners"
+           >
+         </label>
+       `
+     })
+     ```
+
+   - **`.sync` 修饰符]**
+
+     - 在有些情况下，我们可能需要对一个 prop 进行“双向绑定”。不幸的是，真正的双向绑定会带来维护上的问题，因为子组件可以修改父组件，且在父组件和子组件都没有明显的改动来源
+
+     - 推荐以 `update:myPropName` 的模式触发事件取而代之
+
+       ```javascript
+       // 在一个包含 title prop 的假设的组件中，我们可以用以下方法表达对其赋新值的意图
+       this.$emit('update:title', newTitle)
+       
+       // 然后父组件可以监听那个事件并根据需要更新一个本地的数据属性
+       <text-document
+         v-bind:title="doc.title"
+         v-on:update:title="doc.title = $event"
+       ></text-document>
+       
+       // 为了方便起见，为这种模式提供一个缩写，即 .sync 修饰符
+       <text-document v-bind:title.sync="doc.title"></text-document>
+       
+       // 注意带有 .sync 修饰符的 v-bind 不能和表达式一起使用 (例如 v-bind:title.sync=”doc.title + ‘!’” 是无效的)。取而代之的是，你只能提供你想要绑定的属性名，类似 v-model
+       
+       // 当我们用一个对象同时设置多个 prop 的时候，也可以将这个 .sync 修饰符和 v-bind 配合使用：
+       <text-document v-bind.sync="doc"></text-document>
+       // 这样会把 doc 对象中的每一个属性 (如 title) 都作为一个独立的 prop 传进去，然后各自添加用于更新的 v-on 监听器
+       // 将 v-bind.sync 用在一个字面量的对象上，例如 v-bind.sync=”{ title: doc.title }”，是无法正常工作的，因为在解析一个像这样的复杂表达式的时候，有很多边缘情况需要考虑
+       ```
+
+8. 处理边界情况
+
+   - ` $root`：访问根实例
+   - ` $parent`：访问父级组件实例
+   - ` $refs`：访问子组件实例或子元素，`$refs` 只会在组件渲染完成之后生效，并且它们不是响应式的。这只意味着一个直接的子组件封装的“逃生舱”——你应该避免在模板或计算属性中访问 `$refs`
+   - ` provide`、`inject`：依赖注入，`provide` 选项允许我们指定我们想要**提供**给后代组件的数据/方法
+   - ` $on`、` $once`、` $off`：程序化的事件侦听器
+   -  **循环引用**
+     - `递归引用`：组件是可以在它们自己的模板中调用自身的。不过它们只能通过 `name` 选项来做这件事
+     - `组件之间的循环引用`
+   - ` $inline-template`：当 `inline-template` 这个特殊的特性出现在一个子组件上时，这个组件将会使用其里面的内容作为模板，而不是将其作为被分发的内容。不过，`inline-template` 会让你模板的作用域变得更加难以理解。所以作为最佳实践，请在组件内优先选择 `template` 选项或 `.vue` 文件里的一个 `<template>` 元素来定义模板
+   - ` $x-template`：在一个 `<script>` 元素中，并为其带上 `text/x-template`的类型，然后通过一个 id 将模板引用过去。这些可以用于模板特别大的 demo 或极小型的应用，但是其它情况下请避免使用，因为这会将模板和该组件的其它定义分离开
+
+   - **控制更新**
+     - `$forceUpdate `：强制更新
+     - `v-once `：通过 `v-once` 创建低开销的静态组件
+
+##### IX. 生命周期
+
+![生命周期](/src/img/lifecycle.png)
+
+1. el与$mount
+
+   挂载dom元素
+
+2. template、render
+
+   ```javascript
+   new Vue({
+       el: '#app',
+       data:{
+           msg: 'hello world'
+       }，
+       template: '<div>我是一个模板</div>',
+       // createElement --> 得到一个虚拟dom
+       // createElement({String | Object | Function},{Object},{String | Array})
+       //		- 第一个参数: 一个 HTML 标签字符串，组件选项对象，或者 解析上述任何一种的一个 async 异步函数。必需参数。
+       //		- 第二个参数：一个包含模板相关属性的数据对象，可以在 template 中使用这些特性。可选参数。
+       //		- 第三个参数：子虚拟节点 (VNodes)，由 `createElement()` 构建而成，也可以使用字符串来生成“文本虚拟节点”。可选参数。                          
+       render(createElement){
+           return createElement('div', {
+                   style:{
+                       color: 'red',
+                       fontSize: '12px'
+                   },
+                   class: 'red'/['red','green']/{red:true,green:false}
+               })
+           },
+   });
+   
+   // template:String --> AST({}) --> render函数 --> vNode --> 真实的dom 
+   // new Vue --> el? --> yes --> template --> yes --> 
+   //				 --> no --> $mount --> yes --> template --> yes --> 
+   //                     								   --> no --> app.outHTML --> template
+   ```
+
+##### X. 路由
+
+1. 基本用法
+
+   ```javascript
+   // vue add router --> 添加router
+   
+   import Router from 'vue-router';
+   import Home from './views/Home.vue'
+   import About from './views/About.vue'
+   
+   Vue.use(Router);
+   
+   const myRouter = new Router({
+     routes: [{
+         path: '/',
+         component: Home
+       },
+       {
+         path: '/about',
+         component: About
+       }
+     ],
+     mode: 'history'// abstract、history、hash（默认）
+   });
+   
+   
+   new Vue({
+     router: myRouter,//将router添加到vue实例中
+     render: h => h(App)
+   }).$mount('#app')
+   ```
+
+2. mode
+
+   - abstract -->  url后面跟上
+     #/，切换路由，地址不改变
+   - hash -->  url后面跟上
+     #/，且每次切换均会含有#/，切换路由时候，地址变换
+   - history -->  正常地址，但若要使用得当，应进行后端配置

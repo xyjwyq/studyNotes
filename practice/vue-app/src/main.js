@@ -20,7 +20,7 @@ const myRouter = new Router({
       component: About
     }
   ],
-  mode: 'hash'
+  mode: 'history'
 });
 
 new Vue({
