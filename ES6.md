@@ -3746,7 +3746,8 @@ console.log(y instanceof Shape); // true
    I. find()与findIndex()方法
 
    ```javascript
-   - find()  与  findIndex()  方法均接受两个参数：一个回调函数、一个可选值用于指定回调函数内部的  this  。该	- 回调函数可接收三个参数：数组的某个元素、该元素对应的索引位置、以及该数组自身
+   - find()  与  findIndex()  方法均接受两个参数：一个回调函数、一个可选值用于指定回调函数内部的  this  。
+       - 回调函数可接收三个参数：数组的某个元素、该元素对应的索引位置、以及该数组自身
       -  find()  与  findIndex()  方法均会在回调函数第一次返回  true  时停止查找
       - 二者唯一的区别是：  find()  方法会返回匹配的值，而  findIndex()  方法则会返回匹配位置的索引。
       

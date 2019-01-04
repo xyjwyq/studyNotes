@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>todoList</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app" class="wrapper">
+        <input type="text" placeholder="请输入待办事项" v-model="taskMsg">
+        <button @click="submit">提交</button>
+        <span>提示信息</span>
+        <ul>
+            <li v-for="task in taskList">
+                {{task.title}}
+                <button @click="removeTask(task)">remove</button>
+            </li>
+
+        </ul>
+        <h4>已完成事项</h4>
+        <ul>
+            <li v-for="completedItem in completed">{{completedItem.title}}</li>
+        </ul>
+    </div>
+
+    <script>
+        new Vue({
+            el:'#app',
+            data: {
+                taskMsg: '',
+                taskList: [],
+                completed: []
+            },
+            methods: {
+                submit() {
+                    this.taskList.push({
+                        title: this.taskMsg,
+                    });
+                },
+                removeTask(task){
+                    this.completed.push(...this.taskList.splice(this.taskList.indexOf(task),1));
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

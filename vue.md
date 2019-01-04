@@ -189,15 +189,412 @@ Vue.js学习
      // 如在该例子中，当改变age时(vm.age = 20), #app中挂载的方法如combineName,test均会重新执行，而wait则不会执行
      ```
 
+3. 计算属性与侦听属性
+
+   - Vue 提供了一种更通用的方式来观察和响应 Vue 实例上的数据变动：**侦听属性**
+
+     ```html
+     <div id="demo">{{ fullName }}</div>
+     ```
+
+     ```javascript
+     // 计算属性与侦听属性的异同
+     var vm = new Vue({
+       el: '#demo',
+       data: {
+         firstName: 'Foo',
+         lastName: 'Bar',
+         fullName: 'Foo Bar'
+       },
+       watch: {
+         firstName: function (val) {
+           this.fullName = val + ' ' + this.lastName
+         },
+         lastName: function (val) {
+           this.fullName = this.firstName + ' ' + val
+         }
+       }
+     })
+     
+     var vm = new Vue({
+       el: '#demo',
+       data: {
+         firstName: 'Foo',
+         lastName: 'Bar'
+       },
+       computed: {
+         fullName: function () {
+           return this.firstName + ' ' + this.lastName
+         }
+       }
+     })
+     ```
+
+4. 计算属性的setter属性
+
+   ```javascript
+   // 计算属性默认只有 getter ，不过在需要时你也可以提供一个 setter ：
+   computed: {
+     fullName: {
+       // getter
+       get: function () {
+         return this.firstName + ' ' + this.lastName
+       },
+       // setter
+       set: function (newValue) {
+         var names = newValue.split(' ')
+         this.firstName = names[0]
+         this.lastName = names[names.length - 1]
+       }
+     }
+   }
+   ```
+
+5. 侦听器
+
+   - 虽然计算属性在大多数情况下更合适，但有时也需要一个自定义的侦听器。这就是为什么 Vue 通过 `watch` 选项提供了一个更通用的方法，来响应数据的变化。当需要在数据变化时执行异步或开销较大的操作时，这个方式是最有用的
 
 ##### III. class与style绑定
 
+1. ：clss , :style的绑定有三种方式
+
+   - 通过表达式计算出字符串结果（易出错）
+   - 对象语法
+   - 数组语法
+
+   ```html
+   <!--class-->
+   <!--对象语法-->
+   <div v-bind:class="{ active: isActive }"></div>
+   <div class="static"
+        v-bind:class="{ active: isActive, 'text-danger': hasError }">
+   </div>
+   <div v-bind:class="classObject"></div>
+   <!--数组语法-->
+   <div v-bind:class="[activeClass, errorClass]"></div>
+   <div v-bind:class="[isActive ? activeClass : '', errorClass]"></div>
+   <div v-bind:class="[{ active: isActive }, errorClass]"></div>
+   <!--style-->
+   <!--对象语法-->
+   <div v-bind:style="{ color: activeColor, fontSize: fontSize + 'px' }"></div>
+   <div v-bind:style="styleObject"></div>
+   <div v-bind:style="[baseStyles, overridingStyles]"></div>
+   ```
+
+   ```javascript
+   data: {
+     // 对象语法
+     isActive: true,
+     hasError: false,
+     classObject: {
+       active: true,
+       'text-danger': false
+     },
+     // 数组语法
+     activeClass: 'active',
+     errorClass: 'text-danger'
+   },
+   computed: {
+     // 对象语法
+     classObject: function () {
+       return {
+         active: this.isActive && !this.error,
+         'text-danger': this.error && this.error.type === 'fatal'
+       }
+     }
+   }
+   
+   
+   data: {
+     activeColor: 'red',
+     fontSize: 30,
+     styleObject: {
+       color: 'red',
+       fontSize: '13px'
+     }
+   }
+   
+   ```
+
+2. `v-bind:class` 指令也可以与普通的 class 属性共存
+
+​	
+
+​	
+
 ##### IV. 条件渲染
+
+1. v-if
+
+   - `v-if` 是“真正”的条件渲染，因为它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建。
+
+   - `v-if` 也是**惰性的**：如果在初始渲染时条件为假，则什么也不做——直到条件第一次变为真时，才会开始渲染条件块。
+   - 不断移除/创建元素
+
+2. v-show
+
+   - `v-show` 不管初始条件是什么，元素总是会被渲染，并且只是简单地基于 CSS 进行切换，改变display属性。
+
+3. Vue 会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染，用 `key` 管理可复用的元素
+
+4. 一般来说，`v-if` 有更高的切换开销，而 `v-show` 有更高的初始渲染开销。因此，如果需要非常频繁地切换，则使用 `v-show` 较好；如果在运行时条件很少改变，则使用 `v-if` 较好。
 
 ##### V. 列表渲染
 
+1. 当 Vue.js 用 `v-for` 正在更新已渲染过的元素列表时，它默认用“就地复用”策略。如果数据项的顺序被改变，Vue 将不会移动 DOM 元素来匹配数据项的顺序， 而是简单复用此处每个元素，并且确保它在特定索引下显示已被渲染过的每个元素。了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素，你需要为每项提供一个唯一 `key` 属性
+
+2. 当在组件中使用 `v-for` 时，`key` 现在是必须的。
+
+3. 数组更新检测
+
+   - 变异方法
+
+     - `push()`
+     - `pop()`
+     - `shift()`
+     - `unshift()`
+     - `splice()`
+     - `sort()`
+     - `reverse(`
+
+   - 替换数组
+
+   - 注意事项
+
+     - 由于 JavaScript 的限制，Vue 不能检测以下变动的数组：
+
+       - 当你利用索引直接设置一个项时，例如：`vm.items[indexOfItem] = newValue`
+
+       - 当你修改数组的长度时，例如：`vm.items.length = newLength`
+
+     - 解决方式
+
+       - ```
+         Vue.set(vm.items, indexOfItem, newValue)
+         vm.$set(vm.items, indexOfItem, newValue)
+         ```
+
+       - ```
+         vm.items.splice(newLength)
+         ```
+
+4. 对象更改检测注意事项
+
+   - **Vue 不能检测对象属性的添加或删除**：
+
+   - ```
+     `vm.$set(vm.userProfile, 'age', 27)`
+     ```
+
 ##### VI. 事件处理
+
+所有的 Vue.js 事件处理方法和表达式都严格绑定在当前视图的 ViewModel 上，它不会导致任何维护上的困难
+
+​	
+
+1. 为什么在HTML中监听事件
+   - 扫一眼 HTML 模板便能轻松定位在 JavaScript 代码里对应的方法。
+   - 因为你无须在 JavaScript 里手动绑定事件，你的 ViewModel 代码可以是非常纯粹的逻辑，和 DOM 完全解耦，更易于测试。
+   - 当一个 ViewModel 被销毁时，所有的事件处理器都会自动被删除。你无须担心如何清理它们。
 
 ##### VII. 表单输入绑定
 
+1. 使用 `v-model` 指令在表单 `<input>`、`<textarea>` 、`<checkbox>` 、`<radio>` 及 `<select>` 元素上创建双向数据绑定。它会根据控件类型自动选取正确的方法来更新元素。 它负责监听用户的输入事件以更新数据，并对一些极端场景进行一些特殊处理
+
+2. 修饰符
+
+   - `.lazy`：在默认情况下，`v-model` 在每次 `input` 事件触发后将输入框的值与数据进行同步 (除了输入法组合文字时)。可以添加 `lazy` 修饰符，从而转变为使用 `change`事件进行同步
+
+   - `.number`：如果想自动将用户的输入值转为数值类型，可以给 `v-model` 添加 `number` 修饰符：
+
+   - `.trim`：如果要自动过滤用户输入的首尾空白字符，可以给 `v-model` 添加 `trim` 修饰符：
+
+     ```html
+     <input v-model.lazy="msg" >
+     <input v-model.number="age" type="number">
+     <input v-model.trim="msg">
+     ```
+
 ##### VIII. 组件基础
+
+1. 基础
+
+   - 组件中data必须是一个函数
+
+2. prop
+
+   ```javascript
+   // 组件注册(全局)
+   Vue.component('blog-post', {
+     props: ['title'],
+     template: '<h3>{{ title }}</h3>'
+   })
+   ```
+
+   ```html
+   <blog-post title="My journey with Vue"></blog-post>
+   <blog-post title="Blogging with Vue"></blog-post>
+   <blog-post title="Why Vue is so fun"></blog-post>
+   ```
+
+3. 单个根元素
+
+   - **每个组件必须只有一个根元素**
+
+4. 子组件向父组件传值
+
+   ```html
+   <!--一个组件-->
+   <template>
+       <bitton @click="testMethod"></bitton>
+   </template>
+   
+   <script>
+       export default {
+           name:'testComponent',
+           data(){
+               return {
+                   test:'test'
+               }
+           },
+           methods:{
+               testMethod(){
+                   this.$emit('postValToParent',/想要传给父组件的值/);
+               }
+           }
+       }
+   </script>
+   
+   <!--使用组件-->
+   <test-component @postValToParent="test"></test-component>
+   <script>
+       new Vue({
+           el: '#app',
+           data:{},
+           methods:{
+               test(sonVal){
+                   console.log(sonVal);
+               }
+           }
+       });
+   </script>
+   ```
+
+5. slot
+
+   ```html
+   <!--插槽组件默认为conSlot-->
+   
+   <!--默认插槽-->
+   <template>
+   	<div>
+           <strong>default</strong>
+           <slot></slot>
+       </div>
+   </template>
+   
+   <con-slot>
+   	<!--该语句会直接替换组件中的slot标签-->    
+   	<span>slot</span>
+   </con-slot>
+   
+   
+   <!--具名插槽-->
+   <template>
+   	<div>
+           <header>
+           	<slot name="header"></slot>
+           </header>
+           <main>
+           	<slot></slot>
+           </main>
+           <footer>
+           	<slot name="footer"></slot>
+           </footer>
+       </div>
+   </template>
+   
+   <con-slot>
+   	<!--该语句会直接替换组件中的slot标签-->    
+       <!--方式1-->  
+   	<h1 slot="header">header</h1>
+       <h6>main</h6>
+       <h1 slot="footer">footer</h1>
+         <!--方式2-->  
+       <template slot="header">
+   		<h1>header</h1>        
+       </template>     
+        <template>
+   		<h6>main</h6>    
+       </template>
+       <template slot="footer">
+   		 <h1>footer</h1>      
+       </template> 
+   </con-slot>
+   
+   <!--作用域插槽-->
+   <template>
+   	<div>
+           <ul>
+              <slot v-for="(item,index) in list" :item="item" :index="index"></slot>
+           </ul>
+       </div>
+   </template>
+   <script>
+       export default{
+           props:['list']
+       };
+   </script>
+   
+   <con-slot :list="list">
+   	<!--该语句会直接替换组件中的slot标签-->    
+       <template slot-scope="row">
+           <!--row={item:list.item,index:list.index}-->
+   		<li>{{row.index}}-{{row.item}}</li>   
+       </template>     
+   </con-slot>
+   <script>
+       new Vue({
+           el:'#app',
+           data:{
+               list:[1,2,2,3,4,4,5]
+           }
+       });
+   </script>
+   ```
+
+6. 动态组件
+
+   ```javascript
+   
+   // 两种方式-->一为v-for,二为is
+   <button @click="tab"></button>
+   <component is="tabCom"></component>
+   <keep-alive>
+       //缓存组件
+   	<component is="tabCom"></component>
+   </keep-alive>
+   
+   
+   const componentA = {
+       template:'<div>component-a</div>'
+   };
+   const componentB = {
+       template:'<div>component-b</div>'
+   };
+   new Vue({
+       el:'#app'，
+       data:{
+       	tabCom: 'componentA'
+   	},
+       methods:{
+           tab(){
+       		this.tabCom = this.tabCom === 'componentA' ? 'componentB' : 'componentA';
+   		}
+       },
+       components:{
+       	'componentA':componentA,
+       	'componentB':componentB
+   	}
+   });
+   ```

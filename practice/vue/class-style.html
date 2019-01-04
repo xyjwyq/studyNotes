@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>class-style</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+      div {
+        position: absolute;
+        left: 100px;
+        top: 0;
+        width: 100px;
+        height: 100px;
+        border: 1px solid #aaa;
+      }
+
+      .active {
+        background-color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- <div id="app"  @click="">
+            <p>{{name}}</p>
+            <p>{{}}</p>
+            <p>{{}}</p>
+            
+    </div> -->
+    <div id="app">
+      <input type="text" v-model="testName" />
+      <p>{{ testName }}</p>
+      <p>{{ firstName }}</p>
+    </div>
+
+    <script>
+      new Vue({
+        el: "#app",
+        data: {
+          // name:'xiexie',
+          firstName: "aaa",
+          lastName: "ccc"
+        },
+        methods: {
+          test() {
+            this.firstName = "bbbb";
+          }
+        },
+        watch: {},
+        computed: {
+          testName:{
+           get(){
+               return this.firstName + this.lastName;
+           },
+           set(val){
+               this.test();
+           }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
